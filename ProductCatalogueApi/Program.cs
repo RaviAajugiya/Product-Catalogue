@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ProductCatalogue.Authentication;
+using ProductCatalogue.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,11 +12,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // For Entity Framework
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ConnStr")));
+builder.Services.AddDbContext<ProductCatalogueContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ConnStr")));
 
 // For Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddEntityFrameworkStores<ProductCatalogueContext>()
     .AddDefaultTokenProviders();
 
 // Adding Authentication
