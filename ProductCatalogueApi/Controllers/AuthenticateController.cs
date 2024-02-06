@@ -11,6 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ProductCatalogue.Controllers
 {
@@ -41,6 +42,8 @@ namespace ProductCatalogue.Controllers
                 var authClaims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
+
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
 
@@ -54,7 +57,7 @@ namespace ProductCatalogue.Controllers
                 var token = new JwtSecurityToken(
                     issuer: _configuration["JWT:ValidIssuer"],
                     audience: _configuration["JWT:ValidAudience"],
-                    expires: DateTime.Now.AddHours(3),
+                    expires: DateTime.Now.AddHours(24),
                     claims: authClaims,
                     signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
                     );
@@ -68,42 +71,41 @@ namespace ProductCatalogue.Controllers
             return Unauthorized();
         }
 
+
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
-            try
+            var userExists = await userManager.FindByNameAsync(model.Username);
+            if (userExists != null)
             {
-                var userExists = await userManager.FindByNameAsync(model.Username);
-                if (userExists != null)
-                {
-                    return StatusCode(StatusCodes.Status500InternalServerError,
-                        new Response { Status = "Error", Message = "User already exists!" });
-                }
-
-                ApplicationUser user = new ApplicationUser()
-                {
-                    Email = model.Email,
-                    SecurityStamp = Guid.NewGuid().ToString(),
-                    UserName = model.Username
-                };
-
-                var result = await userManager.CreateAsync(user, model.Password);
-                if (!result.Succeeded)
-                {
-                    var errors = result.Errors.Select(e => e.Description).ToList();
-                    return StatusCode(StatusCodes.Status500InternalServerError,
-                        new Response { Status = "Error", Message = "User creation failed!", Errors = errors });
-                }
-
-                return Ok(new Response { Status = "Success", Message = "User created successfully!" });
-            }
-            catch (Exception ex)
-            {
-                // Log the exception or return a generic error message
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new Response { Status = "Error", Message = "An unexpected error occurred during user registration." });
+                    new Response { Status = "Error", Message = "User already exists!" });
             }
+
+            // Check if the default role (User) exists, if not, create it
+            if (!await roleManager.RoleExistsAsync(UserRoles.User))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+
+            ApplicationUser user = new ApplicationUser()
+            {
+                Email = model.Email,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                UserName = model.Username
+            };
+
+            var result = await userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description).ToList();
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new Response { Status = "Error", Message = "User creation failed!", Errors = errors });
+            }
+
+            // Assign the default role (User) to the user
+            await userManager.AddToRoleAsync(user, UserRoles.User);
+
+            return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }
 
         [HttpPost]
@@ -119,6 +121,10 @@ namespace ProductCatalogue.Controllers
                         new Response { Status = "Error", Message = "User already exists!" });
                 }
 
+                // Check if the admin role exists, if not, create it
+                if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
+                    await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+
                 ApplicationUser user = new ApplicationUser()
                 {
                     Email = model.Email,
@@ -134,25 +140,22 @@ namespace ProductCatalogue.Controllers
                         new Response { Status = "Error", Message = "User creation failed!", Errors = errors });
                 }
 
-                if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
-                    await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-                if (!await roleManager.RoleExistsAsync(UserRoles.User))
-                    await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
-
-                if (await roleManager.RoleExistsAsync(UserRoles.Admin))
-                {
-                    await userManager.AddToRoleAsync(user, UserRoles.Admin);
-                }
+                // Assign the admin role to the user
+                await userManager.AddToRoleAsync(user, UserRoles.Admin);
 
                 return Ok(new Response { Status = "Success", Message = "User created successfully!" });
             }
             catch (Exception ex)
             {
-                // Log the exception or return a generic error message
+                // Log the exception
+                Console.WriteLine($"An error occurred during admin user registration: {ex.Message}");
+
+                // Return error response with exception message
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new Response { Status = "Error", Message = "An unexpected error occurred during admin user registration." });
+                    new Response { Status = "Error", Message = "An unexpected error occurred during admin user registration.", Errors = new List<string> { ex.Message } });
             }
         }
+
 
     }
 }

@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ProductCatalogue.Authentication;
 using ProductCatalogue.Models;
 using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,10 +16,19 @@ builder.Services.AddControllers();
 // For Entity Framework
 builder.Services.AddDbContext<ProductCatalogueContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ConnStr")));
 
+// Register AutoMapper
+builder.Services.AddAutoMapper(typeof(Program));
+
 // For Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ProductCatalogueContext>()
     .AddDefaultTokenProviders();
+
+
+builder.Services.AddLogging(logging =>
+{
+    logging.AddConsole(); // You can add other logging providers here
+});
 
 // Adding Authentication
 builder.Services.AddAuthentication(options =>
@@ -26,6 +37,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })
+
 // Adding Jwt Bearer
 .AddJwtBearer(options =>
 {
