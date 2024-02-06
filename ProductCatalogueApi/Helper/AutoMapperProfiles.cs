@@ -2,20 +2,19 @@
 using ProductCatalogue.DbModels;
 using ProductCatalogue.DTOs.Product;
 using ProductCatalogue.DTOs.Tags;
-using System.IO;
 
-namespace ProductCatalogue.Helper
+public class AutoMapperProfiles : Profile
 {
-    public class AutoMapperProfiles : Profile
+    public AutoMapperProfiles()
     {
-        public AutoMapperProfiles()
-        {
-            CreateMap<Product, ProductDTO>();
-            CreateMap<Product, ProductCreateDTO>().ReverseMap();
+        CreateMap<Product, ProductDTO>();
+        CreateMap<Product, ProductCreateDTO>().ReverseMap();
 
-            CreateMap<Tag, TagDTO>();
-            CreateMap<Product, TagCreateDTO>().ReverseMap();
+        CreateMap<ProductCreateDTO, Product>()
+            .ForMember(dest => dest.MainImage, opt => opt.Ignore())
+            .ForMember(dest => dest.SubImages, opt => opt.Ignore()); // Ignore the SubImages property
 
-        }
+        CreateMap<Tag, TagDTO>();
+        CreateMap<Product, TagCreateDTO>().ReverseMap();
     }
 }

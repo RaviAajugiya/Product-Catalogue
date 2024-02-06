@@ -19,20 +19,28 @@ namespace ProductCatalogue.Models
         {
         }
 
-        public DbSet<Product> Products { get; set; }
+        public virtual DbSet<Product> Product { get; set; }
 
-        public DbSet<ProductTag> ProductTags { get; set; }
+        public virtual DbSet<ProductTag> ProductTag { get; set; }
 
-        public DbSet<SubImage> SubImages { get; set; }
+        public virtual DbSet<SubImage> SubImage { get; set; }
 
-        public DbSet<Tag> Tags { get; set; }
+        public virtual DbSet<Tag> Tag { get; set; }
 
-        public DbSet<Wishlist> Wishlists { get; set; }
+        public virtual DbSet<Wishlist> Wishlist { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<AspNetUserLogin>()
+                .HasKey(l => new { l.LoginProvider, l.ProviderKey });
+
+            modelBuilder.Entity<AspNetUserToken>()
+                .HasKey(t => new { t.UserId, t.LoginProvider, t.Name });
         }
+
+
     }
 }

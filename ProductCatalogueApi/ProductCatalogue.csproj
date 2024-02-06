@@ -15,7 +15,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Authentication\ApplicationDbContext.cs" />
+		<Compile Remove="Authentication\ApplicationDbContext.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -29,6 +29,11 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="wwwroot\Upload\" />
+	  <Folder Include="wwwroot\Upload\images\" />
 	</ItemGroup>
 
 </Project>
