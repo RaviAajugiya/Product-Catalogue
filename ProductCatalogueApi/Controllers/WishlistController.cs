@@ -28,7 +28,7 @@ namespace ProductCatalogue.Controllers
         }
 
         [HttpGet]
-        [Authorize] // Ensure user is authenticated
+        [Authorize]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> Get()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -37,40 +37,35 @@ namespace ProductCatalogue.Controllers
                 return Unauthorized();
             }
 
-            var productDTOs = await context.Product
-                .Where(p => context.Wishlist.Any(w => w.ProductId == p.ProductId && w.UserId == userId))
-                .Select(product => new ProductDTO
+            var wishlistProducts = await context.Wishlist
+                .Where(w => w.UserId == userId)
+                .Select(w => new ProductDTO
                 {
-                    ProductId = product.ProductId,
-                    Name = product.Name,
-                    Description = product.Description,
-                    Price = product.Price,
-                    MainImage = product.MainImage,
-                    SubImages = context.SubImage
-                                    .Where(subImg => subImg.ProductId == product.ProductId)
-                                    .Select(subImg => new SubImageDTO
-                                    {
-                                        SubImageId = subImg.SubImageId,
-                                        ImagePath = subImg.ImagePath
-
-                                    })
-                                    .ToList(),
-                    Tags = context.ProductTag
-                                    .Where(tag => tag.ProductId == product.ProductId)
-                                    .Select(tag => new TagDTO
-                                    {
-                                        TagId = tag.TagId,
-                                        Name = tag.Tag.Name
-                                    })
-                                    .ToList()
+                    ProductId = w.Product.ProductId,
+                    Name = w.Product.Name,
+                    Description = w.Product.Description,
+                    Price = w.Product.Price,
+                    MainImage = w.Product.MainImage,
+                    SubImages = w.Product.SubImages.Select(si => new SubImageDTO
+                    {
+                        SubImageId = si.SubImageId,
+                        ImagePath = si.ImagePath
+                    }).ToList(),
+                    Tags = w.Product.ProductTags.Select(pt => new TagDTO
+                    {
+                        TagId = pt.Tag.TagId,
+                        Name = pt.Tag.Name
+                    }).ToList()
                 })
                 .ToListAsync();
 
-            return Ok(productDTOs);
+            return Ok(wishlistProducts);
         }
 
+
+
         [HttpPost("{productId}")]
-        [Authorize] // Ensure user is authenticated
+        [Authorize]
         public async Task<IActionResult> Post(int productId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
