@@ -3,6 +3,7 @@ using ProductCatalogue.DbModels;
 using ProductCatalogue.DTOs.Product;
 using ProductCatalogue.DTOs.SubImages;
 using ProductCatalogue.DTOs.Tags;
+using ProductCatalogue.DTOs.Wishlist;
 
 public class AutoMapperProfiles : Profile
 {
@@ -16,6 +17,10 @@ public class AutoMapperProfiles : Profile
             .ForMember(dest => dest.SubImages, opt => opt.Ignore()); // Ignore the SubImages property
 
         CreateMap<Tag, TagDTO>();
+
+        CreateMap<Wishlist, WishListCreateDTO>().ReverseMap();
+        CreateMap<Wishlist, WishlistDTO>();
+
 
         CreateMap<SubImage, SubImageDTO>();
         CreateMap<SubImagesCreateDTO, SubImage>();

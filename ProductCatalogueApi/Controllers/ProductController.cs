@@ -60,7 +60,7 @@ namespace ProductCatalogue.Controllers
                                     .Select(tag => new TagDTO
                                     {
                                         TagId = tag.TagId,
-                                        Name = tag.Tag.Name // Assuming there's a navigation property from ProductTag to Tag called "Tag"
+                                        Name = tag.Tag.Name
                                     })
                                     .ToList()
                 })
@@ -133,6 +133,18 @@ namespace ProductCatalogue.Controllers
 
                 product.MainImage = uniqueMainFileName;
             }
+
+            var existingTags = await context.ProductTag.Where(tag => tag.ProductId == productId).ToListAsync();
+            context.ProductTag.RemoveRange(existingTags);
+
+            // Add new tags provided in the request
+            foreach (var tagId in productUpdateDTO.TagIds)
+            {
+                var productTag = new ProductTag { ProductId = productId, TagId = tagId };
+                context.ProductTag.Add(productTag);
+            }
+
+            await context.SaveChangesAsync();
 
             // Process sub images if included in the request
             //if (productUpdateDTO.SubImages != null && productUpdateDTO.SubImages.Count > 0)

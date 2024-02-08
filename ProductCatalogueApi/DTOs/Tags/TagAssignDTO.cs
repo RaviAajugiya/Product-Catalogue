@@ -5,4 +5,10 @@
         public List<int> TagIds { get; set; }
 
     }
+
+    public class TagAddDTO
+    {
+        public List<string> Name { get; set; }
+
+    }
 }

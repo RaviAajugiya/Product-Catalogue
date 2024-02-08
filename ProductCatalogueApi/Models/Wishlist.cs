@@ -3,8 +3,6 @@ using ProductCatalogue.Models;
 using System;
 using System.Collections.Generic;
 
-
-
 public partial class Wishlist
 {
     public int WishlistId { get; set; }

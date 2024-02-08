@@ -24,9 +24,9 @@ namespace ProductCatalogue.Controllers
 
         //Add multiple tags in form of array
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] List<string> tags)
+        public async Task<ActionResult> Post([FromBody] TagAddDTO tags)
         {
-            foreach (var tagName in tags)
+            foreach (var tagName in tags.Name)
             {
                 var tagExists = await context.Tag.AnyAsync(tag => tag.Name == tagName);
 
