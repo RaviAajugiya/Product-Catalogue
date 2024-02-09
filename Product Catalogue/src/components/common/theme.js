@@ -29,7 +29,7 @@ const theme = createTheme({
     primary: {
       main: "#131118", // primary color
       white: "#ffffff",
-      border: "#eeeeee",
+      border: "#A4A1AA",
     },
     secondary: {
       main: "#a4a1aa", // secondary color for text

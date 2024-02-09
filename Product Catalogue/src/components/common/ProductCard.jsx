@@ -5,6 +5,7 @@ import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { Box, Button, CardActionArea, Modal } from "@mui/material";
 import ProductModel from "./ProductModel";
+import theme from "./theme";
 
 function ProductCard() {
   const [open, setOpen] = React.useState(false);
@@ -13,7 +14,10 @@ function ProductCard() {
 
   return (
     <Box sx={{ minWidth: "150px" }}>
-      <CardActionArea sx={{ border: "2px solid #eee" }} onClick={handleOpen}>
+      <CardActionArea
+        sx={{ border: `0.5px solid ${theme.palette.primary.border}` }}
+        className=""
+        onClick={handleOpen}>
         <CardMedia
           component="img"
           image="https://templatebeta.com/Prestashop/PRS01/TB_ps_fashion_zurea_122/58-large_default/adidas-t-shirts.jpg"
@@ -26,8 +30,7 @@ function ProductCard() {
             display: "flex",
             flexDirection: "column",
             textAlign: "center",
-          }}
-        >
+          }}>
           <Typography gutterBottom component="p">
             Men Cap
           </Typography>
