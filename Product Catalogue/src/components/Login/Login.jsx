@@ -5,11 +5,12 @@ import LoginImg from "./../../assets/login.png";
 
 function Login() {
   return (
-    <Container maxWidth={false} disableGutters>
+    <div maxWidth={false} sx={{ width: "100vw" }} disableGutters>
       <Box
         display="flex"
         alignItems="center"
-        className="h-screen overflow-hidden">
+        className="h-screen overflow-hidden"
+      >
         <Box>
           <img
             src={LoginImg}
@@ -22,7 +23,8 @@ function Login() {
           flexGrow={1}
           p={3}
           textAlign="center"
-          className="lg:w-2/5 max-w-[600px] m-auto">
+          className="lg:w-2/5 max-w-[600px] m-auto"
+        >
           <Box>
             <img src={appLogo} alt="Logo" />
           </Box>
@@ -53,12 +55,13 @@ function Login() {
             className="mt-5"
             variant="contained"
             color="primary"
-            fullWidth>
+            fullWidth
+          >
             Login
           </Button>
         </Box>
       </Box>
-    </Container>
+    </div>
   );
 }
 
