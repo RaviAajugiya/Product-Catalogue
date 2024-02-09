@@ -7,10 +7,12 @@ import Home from "./components/Home/Home.jsx";
 import Layout from "./components/common/Layout.jsx";
 import { RouterProvider } from "react-router-dom";
 import { URL } from "./components/config/URLHelper.js";
-import Login from "./components/login/Login.jsx";
 import { ThemeProvider } from "@mui/material";
 import theme from "./components/common/theme.js";
 import "./index.css";
+import Login from "./components/Login/Login.jsx";
+import Header from "./components/Header/Header.jsx";
+import { StyledEngineProvider } from "@mui/material";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -23,8 +25,11 @@ const router = createBrowserRouter(
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   // <Provider store={store}>
-  <ThemeProvider theme={theme}>
-    <RouterProvider router={router} />
-  </ThemeProvider>
+  <StyledEngineProvider injectFirst>
+    <ThemeProvider theme={theme}>
+      <RouterProvider router={router} />
+    </ThemeProvider>
+  </StyledEngineProvider>
+
   // </Provider>
 );

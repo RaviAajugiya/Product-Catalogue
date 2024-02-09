@@ -6,26 +6,32 @@ import LoginImg from "./../../assets/login.png";
 function Login() {
   return (
     <Container maxWidth={false} disableGutters>
-      <Box display="flex" width="100%" alignItems="center">
-        {/* Image */}
-        <Box style={{ height: "100vh" }}>
-          {" "}
-          {/* Set height to 100vh */}
+      <Box
+        display="flex"
+        alignItems="center"
+        className="h-screen overflow-hidden">
+        <Box>
           <img
             src={LoginImg}
             alt=""
-            style={{ width: "100%", height: "100%" }}
+            className="w-[50vw] object-cover h-screen hidden lg:block"
           />
         </Box>
 
-        {/* Login Form */}
-        <Box flexGrow={1} textAlign="center" ml={2}>
+        <Box
+          flexGrow={1}
+          p={3}
+          textAlign="center"
+          className="lg:w-2/5 max-w-[600px] m-auto">
           <Box>
-            <img src={appLogo} alt="Logo" style={{ width: "100px" }} />
+            <img src={appLogo} alt="Logo" />
           </Box>
-          <Typography variant="h5" gutterBottom>
-            Login
-          </Typography>
+          <Box className="text-left mt-6">
+            <Typography variant="h5">Welcome</Typography>
+            <Typography gutterBottom color="secondary">
+              Please login here
+            </Typography>
+          </Box>
           <TextField
             label="Username"
             variant="outlined"
@@ -39,7 +45,15 @@ function Login() {
             margin="normal"
             type="password"
           />
-          <Button variant="contained" color="primary" fullWidth>
+          <Box display="flex" justifyContent="space-between">
+            <Typography color="secondary">Create new account</Typography>
+            <Typography color="secondary">Forgot password?</Typography>
+          </Box>
+          <Button
+            className="mt-5"
+            variant="contained"
+            color="primary"
+            fullWidth>
             Login
           </Button>
         </Box>

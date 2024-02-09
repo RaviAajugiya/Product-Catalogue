@@ -12,9 +12,7 @@ function Layout() {
   return (
     <>
       {isAuth ? <Header /> : null}
-      <main>
-        <Outlet />
-      </main>
+      <Outlet />
       {isAuth ? <Footer /> : null}
     </>
   );
