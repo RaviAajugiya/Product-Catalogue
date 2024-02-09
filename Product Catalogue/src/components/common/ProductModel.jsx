@@ -3,12 +3,12 @@ import { Box, Button, Chip, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ReactImageMagnify from "react-image-magnify";
+import theme from "./theme";
 
 function ImageZoom({ smallImage, largeImage }) {
   return (
-    <Box className="w-[415px] h-[500px] m-auto relative border-0.5 border-gray-300">
+    <Box sx={{border: `0.5px solid ${theme.palette.primary.border}`}} className="w-[315px] h-[400px] m-auto relative border-0.5 border-gray-300">
       <ReactImageMagnify
-        className=""
         {...{
           smallImage: {
             alt: "The house from the offer.",
@@ -20,10 +20,11 @@ function ImageZoom({ smallImage, largeImage }) {
             width: 1300,
             height: 1300,
           },
-          imageClassName: "object-cover w-full h-full",
+          className: "!h-full",
+          imageClassName: "object-cover !1w-full !h-full",
           enlargedImageContainerDimensions: {
             width: 660,
-            height: 607,
+            height: 604,
           },
           enlargedImageContainerClassName: "z-50",
           lensStyle: { backgroundColor: "rgba(0,0,0,.6)" },
@@ -43,20 +44,21 @@ function ProductModel({ onClose }) {
   };
 
   return (
-    <Box className="bg-white absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 max-w-[1300px] w-full flex p-10 gap-10 items-start">
+    <Box className="h-[90vh] w-[90vw] overflow-scroll flex flex-col lg:flex-row bg-white absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 max-w-[1300px]  py-20 px-6 gap-10 items-start">
+      
       <CloseIcon
-        className="absolute right-6 top-6 text-3xl cursor-pointer"
+        className="absolute text-3xl cursor-pointer right-6 top-6"
         onClick={onClose}
       />
 
-      <Box className="flex flex-col flex-1 pr-20">
+      <Box className="flex flex-col flex-1">
         <ImageZoom smallImage={mainImage} largeImage={mainImage} />
-        <Box className="w-[415px] mx-auto mt-1 flex justify-between">
+        <Box className="flex justify-between w-full gap-1 mx-auto mt-1">
           {[100, 200, 300, 400].map((i) => (
             <Box
               key={i}
               component="img"
-              className="w-1/4 object-cover border border-gray-300 cursor-pointer"
+              className="object-cover border border-gray-300 w-[100px] cursor-pointer"
               alt="The house from the offer."
               src={`https://placehold.co/${i}`}
               onClick={() => handleImageClick(`https://placehold.co/${i}`)}
@@ -65,7 +67,7 @@ function ProductModel({ onClose }) {
         </Box>
       </Box>
 
-      <Box className="flex flex-col gap-2 w-1/2">
+      <Box className="flex flex-col w-full gap-6 ">
         <Typography variant="h5" className="font-semibold">
           MULTICOLOR SHIRTS
         </Typography>
@@ -76,7 +78,7 @@ function ProductModel({ onClose }) {
           vitae voluptatibus exercitationem, dignissimos neque consequuntur
           doloribus id totam sapiente? Adipisci quia laudantium veniam
         </Typography>
-        <Box className="flex gap-2 flex-wrap">
+        <Box className="flex flex-wrap gap-2">
           {[1, 2, 3, 4, 5, 6, 7].map((i) => (
             <Chip key={i} label="Chip Outlined" variant="filled" />
           ))}
