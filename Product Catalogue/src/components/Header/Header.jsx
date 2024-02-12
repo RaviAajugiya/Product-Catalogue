@@ -1,68 +1,116 @@
-import { Avatar, Button, Container } from "@mui/material";
+import { Button, Container } from "@mui/material";
 import React from "react";
-import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import InputBase from "@mui/material/InputBase";
-import MenuIcon from "@mui/icons-material/Menu";
-import SearchIcon from "@mui/icons-material/Search";
 import appLogo from "./../../assets/Krist.svg";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { Link } from "react-router-dom";
 import { URL } from "../config/URLHelper";
 import { useState } from "react";
 import { useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { login, logout } from "../../redux/slice/authSlice";
+import { useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 function Header() {
   const [userName, setUserName] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const localData = localStorage.getItem("userData");
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+  const userData = useSelector((state) => state.auth.userData);
+
+  if (localData && !userData) {
+    dispatch(login(JSON.parse(localData)));
+  }
 
   useEffect(() => {
-    const localData = localStorage.getItem("userData");
     if (localData) {
       const token = JSON.parse(localData).token;
       console.log(token);
       const decodedToken = jwtDecode(token);
       console.log(decodedToken);
 
-      // Extract username from the decoded token
       const username =
         decodedToken[
           "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
         ];
-      setUserName(username); // Set the username in the state
+
+      setIsAdmin(
+        decodedToken[
+          "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+        ] === "Admin"
+      );
+      setUserName(username);
     }
   }, []);
 
-  console.log(userName);
-
   return (
-    <AppBar position="static">
-      <Box sx={{ flexGrow: 1, bgcolor: "primary.main" }}>
+    <AppBar position="static" className="bg-white ">
+      <Box sx={{ flexGrow: 1 }}>
         <Container maxWidth="lg" disableGutters>
-          <Toolbar className="flex justify-between">
+          <Toolbar className="flex justify-between items-center">
             <IconButton
               size="large"
               edge="start"
               color="inherit"
               aria-label="open drawer">
               <Link to={URL.HOME}>
-                <img src={appLogo} alt="" className="invert w-20" />
+                <img src={appLogo} alt="" className="w-20" />
               </Link>
             </IconButton>
-            <Search className="mx-6">
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder="Search…"
-                inputProps={{ "aria-label": "search" }}
-              />
-            </Search>
-            <Avatar sx={{ bgcolor: "white", color: "primary.main" }}>R</Avatar>
+            <Box>
+              <Button
+                sx={{ textTransform: "none" }}
+                onClick={() => navigate(URL.HOME)}>
+                Home
+              </Button>
+              <Button
+                sx={{ textTransform: "none" }}
+                onClick={() => navigate(URL.WISHLIST)}>
+                WishList
+              </Button>
+              {isAdmin ? (
+                <>
+                  <Button
+                    sx={{ textTransform: "none" }}
+                    onClick={() => navigate(URL.ADMIN)}>
+                    Manage Product
+                  </Button>
+                </>
+              ) : null}
+            </Box>
+            <Box className="flex gap-3 items-center text-black">
+              <Typography>Welocome {userName}</Typography>
+              {userData ? (
+                <Button
+                  sx={{ textTransform: "none" }}
+                  variant="contained"
+                  onClick={() => {
+                    localStorage.removeItem("userData");
+                    dispatch(logout());
+                    navigate(URL.HOME);
+                    window.location.reload();
+                  }}>
+                  logout
+                </Button>
+              ) : (
+                <Button
+                  sx={{ textTransform: "none" }}
+                  variant="contained"
+                  onClick={() => {
+                    navigate(URL.AUTH);
+                  }}>
+                  Login
+                </Button>
+              )}
+            </Box>
           </Toolbar>
         </Container>
       </Box>
@@ -71,44 +119,3 @@ function Header() {
 }
 
 export default Header;
-
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginLeft: 0,
-  width: "100%",
-  [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(1),
-    width: "auto",
-  },
-}));
-
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  width: "100%",
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
-    [theme.breakpoints.up("sm")]: {
-      width: "12ch",
-      "&:focus": {
-        width: "20ch",
-      },
-    },
-  },
-}));

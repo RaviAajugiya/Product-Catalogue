@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Button, Chip, Typography } from "@mui/material";
+import { Box, Button, Chip, Container, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ReactImageMagnify from "react-image-magnify";
@@ -25,7 +25,7 @@ function ImageZoom({ smallImage, largeImage }) {
           className: "!h-full",
           imageClassName: "object-cover !1w-full !h-full",
           enlargedImageContainerDimensions: {
-            width: 660,
+            width: 500,
             height: 604,
           },
           enlargedImageContainerClassName: "z-50",
@@ -55,7 +55,7 @@ function ProductModel({ onClose, product }) {
 
   return (
     <Box className="h-screen w-screen overflow-hidden flex justify-center items-center bg-gray-800 bg-opacity-50">
-      <Box className="relative bg-white p-6 px-20 rounded-lg overflow-y-auto max-w-[95vw] max-h-[95vh]">
+      <Container className="relative max-h-[90vh] w-[1200px] max-w-[95vw] overflow-scroll bg-white p-6 px-20 rounded-lg overflow-y-auto ">
         <CloseIcon
           className="absolute text-3xl cursor-pointer right-4 top-4"
           onClick={handleClose}
@@ -103,7 +103,7 @@ function ProductModel({ onClose, product }) {
             </Button>
           </Box>
         </Box>
-      </Box>
+      </Container>
     </Box>
   );
 }

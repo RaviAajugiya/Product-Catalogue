@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using ProductCatalogue.Models;
 
 namespace ProductCatalogue.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class TagsController : ControllerBase
@@ -20,6 +22,20 @@ namespace ProductCatalogue.Controllers
         {
             this.context = context;
             this.mapper = mapper;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<TagDTO>>> GetTags()
+        {
+            var tags = await context.Tag
+                .Select(tag => new TagDTO
+                {
+                    TagId = tag.TagId,
+                    Name = tag.Name
+                })
+                .ToListAsync();
+
+            return tags;
         }
 
         //Add multiple tags in form of array

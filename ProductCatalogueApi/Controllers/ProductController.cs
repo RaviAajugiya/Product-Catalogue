@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using ProductCatalogue.DTOs.SubImages;
 using ProductCatalogue.DTOs.Tags;
 using ProductCatalogue.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace ProductCatalogue.Controllers
@@ -106,6 +107,7 @@ namespace ProductCatalogue.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPatch("{productId}")]
         public async Task<ActionResult> Patch(int productId, [FromForm] ProductCreateDTO productUpdateDTO)
         {
@@ -173,7 +175,7 @@ namespace ProductCatalogue.Controllers
             return Ok();
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult> Post([FromForm] ProductCreateDTO productCreateDTO)
         {

@@ -14,6 +14,7 @@ using ProductCatalogue.Models;
 
 namespace ProductCatalogue.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class WishlistController : ControllerBase

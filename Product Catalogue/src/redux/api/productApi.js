@@ -4,13 +4,13 @@ export const productApi = createApi({
   reducerPath: "productApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "https://localhost:44364/api/Product/",
-    // prepareHeaders: (headers, { getState }) => {
-    //   const token = getState().authSlice.userData.data.accessToken;
-    //   if (token) {
-    //     headers.set("Authorization", `Bearer ${token}`);
-    //   }
-    //   return headers;
-    // },
+    prepareHeaders: (headers, { getState }) => {
+      const token = getState().auth.userData?.token;
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
   tagTypes: ["Product"],
 
@@ -18,6 +18,14 @@ export const productApi = createApi({
     getProduct: builder.query({
       query: () => ({
         method: "GET",
+      }),
+      providesTags: ["Product"],
+    }),
+
+    addProduct: builder.mutation({
+      query: (data) => ({
+        method: "POST",
+        body: data,
       }),
       providesTags: ["Product"],
     }),
@@ -32,4 +40,8 @@ export const productApi = createApi({
   }),
 });
 
-export const { useGetProductQuery, useDeleteProductMutation } = productApi;
+export const {
+  useGetProductQuery,
+  useDeleteProductMutation,
+  useAddProductMutation,
+} = productApi;

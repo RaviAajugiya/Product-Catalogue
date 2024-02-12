@@ -1,30 +1,66 @@
-import React from "react";
+import React, { useState } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-import { Box, Button, CardActionArea, Modal } from "@mui/material";
+import { Box, CardActionArea, Modal, IconButton } from "@mui/material";
 import ProductModel from "./ProductModel";
 import theme from "./theme";
-
-// import "../../assets/images";
+import { FavoriteBorder } from "@mui/icons-material";
+import { useEffect } from "react";
+import { useAddToWishlistMutation } from "../../redux/api/wishlistApi";
 
 function ProductCard({ product }) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
+  const [isHover, setIsHover] = useState(false);
+  const [mainImage, setMainImage] = useState(
+    "../src/assets/images/" + product.mainImage
+  );
+
+  const [addToWishlist] = useAddToWishlistMutation();
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  console.log(product.mainImage);
+
+  useEffect(() => {
+    if (isHover) {
+      setMainImage("../src/assets/images/" + product?.subImages[0]?.imagePath);
+    } else {
+      setMainImage("../src/assets/images/" + product.mainImage);
+    }
+  }, [isHover]);
+
   return (
-    <Box sx={{ minWidth: "150px" }}>
+    <Box sx={{ position: "relative", minWidth: "150px" }}>
       <CardActionArea
         sx={{ border: `0.5px solid ${theme.palette.primary.border}` }}
-        className=""
-        onClick={handleOpen}>
+        className="relative"
+        onClick={handleOpen}
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
+      >
         <CardMedia
           component="img"
-          image={"../src/assets/images/" + product.mainImage}
+          image={mainImage}
           alt="Product Image"
         />
+        {isHover && (
+          <IconButton
+            className="bg-slate-300"
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent event propagation
+              addToWishlist(product.productId);
+            }}
+          >
+            <FavoriteBorder className="hover:scale-110" />
+          </IconButton>
+        )}
       </CardActionArea>
       <CardContent>
         <Box
@@ -32,12 +68,13 @@ function ProductCard({ product }) {
             display: "flex",
             flexDirection: "column",
             textAlign: "center",
-          }}>
+          }}
+        >
           <Typography gutterBottom component="p">
-            {product.name} {/* Use product name from props */}
+            {product.name}
           </Typography>
           <Typography sx={{ fontWeight: "bold" }} gutterBottom component="p">
-            ${product.price.toFixed(2)} {/* Use product price from props */}
+            ${product.price.toFixed(2)}
           </Typography>
         </Box>
       </CardContent>

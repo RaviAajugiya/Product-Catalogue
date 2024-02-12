@@ -83,7 +83,7 @@ function Home() {
     <Container sx={{ mt: 2 }}>
       <Box
         sx={{ border: `0.5px solid ${theme.palette.primary.border}` }}
-        className="border p-4 my-5 flex justify-between">
+        className="border p-4 mt-5 flex justify-between">
         <Box sx={{ position: "relative" }}>
           <TextField
             size="small"
@@ -182,7 +182,7 @@ function Home() {
         </Box>
       </Box>
 
-      <Box sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+      <Box className='pt-2' sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
         {selectedFilters.map((filter) => (
           <Chip
             key={filter}

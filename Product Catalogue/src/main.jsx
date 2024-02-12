@@ -15,12 +15,18 @@ import Header from "./components/Header/Header.jsx";
 import { StyledEngineProvider } from "@mui/material";
 import { Provider } from "react-redux";
 import { store } from "./redux/store.js";
+import Wishlist from "./components/WishList/Wishlist.jsx";
+import Tags from "./components/admin/Tags.jsx";
+import Procucts from "./components/admin/Procucts.jsx";
+import Admin from "./components/admin/Admin.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path={URL.HOME} element={<Layout />}>
       <Route path={URL.HOME} element={<Home />} />
       <Route path={URL.AUTH} element={<Login />} />
+      <Route path={URL.WISHLIST} element={<Wishlist />} />
+      <Route path={URL.ADMIN} element={<Admin />} />
     </Route>
   )
 );

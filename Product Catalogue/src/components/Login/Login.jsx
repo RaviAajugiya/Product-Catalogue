@@ -9,10 +9,14 @@ import { loginForm, registerForm } from "../config/constant";
 import { useLocation, useSearchParams } from "react-router-dom"; // Import useSearchParams
 import { useLoginMutation, useRegisterMutation } from "../../redux/api/authApi";
 import { useNavigate } from "react-router-dom";
+import { login } from "../../redux/slice/authSlice";
+import { useDispatch } from "react-redux";
 
 function Login() {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const queryParams = new URLSearchParams(location.search);
   const page = queryParams.get("page") || "login";
 
@@ -26,6 +30,7 @@ function Login() {
   useEffect(() => {
     if (loginData) {
       localStorage.setItem("userData", JSON.stringify(loginData));
+      dispatch(login(loginData))
       navigate("/");
     }
     if (registerData) {
