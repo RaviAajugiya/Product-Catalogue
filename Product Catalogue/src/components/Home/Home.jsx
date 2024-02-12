@@ -13,7 +13,9 @@ import {
   Slider,
   Typography,
   Menu,
+  IconButton, // Import IconButton component
 } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search"; // Import SearchIcon component
 import theme from "../common/theme";
 
 function Home() {
@@ -33,7 +35,6 @@ function Home() {
 
   useEffect(() => {
     if (!initialSyncDone) {
-      // Perform initial state sync with query parameters
       const params = new URLSearchParams(searchParams);
       setSearchText(params.get("search") || "");
       setSelectedFilters(params.getAll("filter") || []);
@@ -42,13 +43,15 @@ function Home() {
       const maxPrice = parseInt(params.get("maxPrice")) || 100;
       setPriceRange([minPrice, maxPrice]);
 
-      // Set initial sync flag to true
       setInitialSyncDone(true);
     }
   }, [initialSyncDone, searchParams]);
 
+  const handlePriceChange = (event, newValue) => {
+    setPriceRange(newValue);
+  };
+
   useEffect(() => {
-    // Update query parameters with state on state change
     const params = new URLSearchParams();
     if (searchText) params.append("search", searchText);
     selectedFilters.forEach((filter) => params.append("filter", filter));
@@ -58,24 +61,14 @@ function Home() {
 
     setSearchParams(params.toString());
   }, [
-    searchText,
     selectedFilters,
     selectedSorting,
-    priceRange,
     setSearchParams,
   ]);
 
-  const handleSearch = () => {
-    // Make backend request to filter products based on search text
-    // Update filteredProducts state with the response from the backend
-  };
 
   const handleFilterChange = (event) => {
     setSelectedFilters(event.target.value);
-  };
-
-  const handlePriceChange = (event, newValue) => {
-    setPriceRange(newValue);
   };
 
   const handleMenuOpen = (event) => {
@@ -91,13 +84,37 @@ function Home() {
       <Box
         sx={{ border: `0.5px solid ${theme.palette.primary.border}` }}
         className="border p-4 my-5 flex justify-between">
-        <TextField
-          size="small"
-          variant="outlined"
-          placeholder="Search"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-        />
+        <Box sx={{ position: "relative" }}>
+          <TextField
+            size="small"
+            variant="outlined"
+            placeholder="Search"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+          <IconButton
+            sx={{
+              position: "absolute",
+              right: 0,
+              top: "50%",
+              transform: "translateY(-50%)",
+            }}
+            onClick={() => {
+              const params = new URLSearchParams();
+              if (searchText) params.append("search", searchText);
+              if (selectedFilters.length > 0)
+                selectedFilters.forEach((filter) =>
+                  params.append("filter", filter)
+                );
+              if (selectedSorting) params.append("sorting", selectedSorting);
+              if (priceRange[0] !== 0) params.append("minPrice", priceRange[0]);
+              if (priceRange[1] !== 100)
+                params.append("maxPrice", priceRange[1]);
+              setSearchParams(params.toString());
+            }}>
+            <SearchIcon />
+          </IconButton>
+        </Box>
 
         <Select
           size="small"
@@ -141,7 +158,21 @@ function Home() {
                 className="w-52"
                 size="small"
                 value={priceRange}
-                onChange={handlePriceChange}
+                onChange={(event, newValue) => setPriceRange(newValue)}
+                onChangeCommitted={(event, newValue) => {
+                  handlePriceChange(event, newValue);
+                  const params = new URLSearchParams();
+                  if (searchText) params.append("search", searchText);
+                  selectedFilters.forEach((filter) =>
+                    params.append("filter", filter)
+                  );
+                  if (selectedSorting)
+                    params.append("sorting", selectedSorting);
+                  if (newValue[0] !== 0) params.append("minPrice", newValue[0]);
+                  if (newValue[1] !== 100)
+                    params.append("maxPrice", newValue[1]);
+                  setSearchParams(params.toString());
+                }}
                 aria-labelledby="price-slider"
                 min={0}
                 max={100}
