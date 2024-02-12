@@ -11,8 +11,34 @@ import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import appLogo from "./../../assets/Krist.svg";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { Link } from "react-router-dom";
+import { URL } from "../config/URLHelper";
+import { useState } from "react";
+import { useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
 
 function Header() {
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    const localData = localStorage.getItem("userData");
+    if (localData) {
+      const token = JSON.parse(localData).token;
+      console.log(token);
+      const decodedToken = jwtDecode(token);
+      console.log(decodedToken);
+
+      // Extract username from the decoded token
+      const username =
+        decodedToken[
+          "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
+        ];
+      setUserName(username); // Set the username in the state
+    }
+  }, []);
+
+  console.log(userName);
+
   return (
     <AppBar position="static">
       <Box sx={{ flexGrow: 1, bgcolor: "primary.main" }}>
@@ -22,9 +48,10 @@ function Header() {
               size="large"
               edge="start"
               color="inherit"
-              aria-label="open drawer"
-            >
-              <img src={appLogo} alt="" className="invert w-20" />
+              aria-label="open drawer">
+              <Link to={URL.HOME}>
+                <img src={appLogo} alt="" className="invert w-20" />
+              </Link>
             </IconButton>
             <Search className="mx-6">
               <SearchIconWrapper>

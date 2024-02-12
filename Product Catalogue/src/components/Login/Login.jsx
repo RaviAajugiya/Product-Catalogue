@@ -7,15 +7,31 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { loginForm, registerForm } from "../config/constant";
 import { useLocation, useSearchParams } from "react-router-dom"; // Import useSearchParams
+import { useLoginMutation, useRegisterMutation } from "../../redux/api/authApi";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const location = useLocation();
+  const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const page = queryParams.get("page") || "login";
 
   const [isLoginPage, setIsLoginPage] = useState(page === "login");
 
-  const [searchParams, setSearchParams] = useSearchParams(); // Use useSearchParams
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [authLogin, { data: loginData }] = useLoginMutation();
+  const [authRegister, { data: registerData }] = useRegisterMutation();
+
+  useEffect(() => {
+    if (loginData) {
+      localStorage.setItem("userData", JSON.stringify(loginData));
+      navigate("/");
+    }
+    if (registerData) {
+      setIsLoginPage(true);
+    }
+  }, [loginData, registerData]);
 
   useEffect(() => {
     if (isLoginPage) {
@@ -27,6 +43,7 @@ function Login() {
 
   const handleSubmit = (values) => {
     console.log(values);
+    isLoginPage ? authLogin(values) : authRegister(values);
   };
 
   const validationSchema = isLoginPage
@@ -46,8 +63,7 @@ function Login() {
       <Box
         display="flex"
         alignItems="center"
-        className="h-screen overflow-hidden"
-      >
+        className="h-screen overflow-hidden">
         <Box>
           <img
             src={LoginImg}
@@ -60,8 +76,7 @@ function Login() {
           flexGrow={1}
           p={3}
           textAlign="center"
-          className="lg:w-2/5 max-w-[600px] m-auto"
-        >
+          className="lg:w-2/5 max-w-[600px] m-auto">
           <Box>
             <img src={appLogo} alt="Logo" />
           </Box>
@@ -75,8 +90,7 @@ function Login() {
             initialValues={initialValues}
             onSubmit={handleSubmit}
             validateOnChange={false}
-            validationSchema={validationSchema}
-          >
+            validationSchema={validationSchema}>
             {(formikProps) => (
               <form onSubmit={formikProps.handleSubmit}>
                 <DynamicForm
@@ -91,23 +105,19 @@ function Login() {
                   <Typography
                     className="cursor-pointer"
                     color="secondary"
-                    onClick={() => setIsLoginPage((prev) => !prev)}
-                  >
+                    onClick={() => setIsLoginPage((prev) => !prev)}>
                     {isLoginPage
                       ? "Create new account"
                       : "Already have an account?"}
                   </Typography>
-                  <Typography color="secondary">
-                    Forgot password?
-                  </Typography>
+                  <Typography color="secondary">Forgot password?</Typography>
                 </Box>
                 <Button
                   type="submit"
                   className="mt-5"
                   variant="contained"
                   color="primary"
-                  fullWidth
-                >
+                  fullWidth>
                   {isLoginPage ? "Login" : "Register"}
                 </Button>
               </form>
