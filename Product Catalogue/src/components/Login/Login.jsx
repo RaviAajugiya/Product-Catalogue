@@ -1,9 +1,46 @@
-import React from "react";
-import { Box, Container, TextField, Button, Typography } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Box, Button, Typography } from "@mui/material";
 import appLogo from "./../../assets/Krist.svg";
 import LoginImg from "./../../assets/login.png";
+import DynamicForm from "../common/form/DynamicForm";
+import { Formik } from "formik";
+import * as Yup from "yup";
+import { loginForm, registerForm } from "../config/constant";
+import { useLocation, useSearchParams } from "react-router-dom"; // Import useSearchParams
 
 function Login() {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const page = queryParams.get("page") || "login";
+
+  const [isLoginPage, setIsLoginPage] = useState(page === "login");
+
+  const [searchParams, setSearchParams] = useSearchParams(); // Use useSearchParams
+
+  useEffect(() => {
+    if (isLoginPage) {
+      setSearchParams({ page: "login" });
+    } else {
+      setSearchParams({ page: "signup" });
+    }
+  }, [isLoginPage, setSearchParams]);
+
+  const handleSubmit = (values) => {
+    console.log(values);
+  };
+
+  const validationSchema = isLoginPage
+    ? loginForm.loginValidationSchema
+    : registerForm.registerValidationSchema;
+
+  const initialValues = isLoginPage
+    ? loginForm.loginInitialValues
+    : registerForm.RegisterInitialValues;
+
+  const fields = isLoginPage
+    ? loginForm.loginFields
+    : registerForm.registerFields;
+
   return (
     <div maxWidth={false} sx={{ width: "100vw" }} disableGutters>
       <Box
@@ -31,34 +68,51 @@ function Login() {
           <Box className="text-left mt-6">
             <Typography variant="h5">Welcome</Typography>
             <Typography gutterBottom color="secondary">
-              Please login here
+              {isLoginPage ? "Please login here" : "Create an account"}
             </Typography>
           </Box>
-          <TextField
-            label="Username"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Password"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            type="password"
-          />
-          <Box display="flex" justifyContent="space-between">
-            <Typography color="secondary">Create new account</Typography>
-            <Typography color="secondary">Forgot password?</Typography>
-          </Box>
-          <Button
-            className="mt-5"
-            variant="contained"
-            color="primary"
-            fullWidth
+          <Formik
+            initialValues={initialValues}
+            onSubmit={handleSubmit}
+            validateOnChange={false}
+            validationSchema={validationSchema}
           >
-            Login
-          </Button>
+            {(formikProps) => (
+              <form onSubmit={formikProps.handleSubmit}>
+                <DynamicForm
+                  fields={fields}
+                  values={formikProps.values}
+                  onChange={formikProps.handleChange}
+                  errors={formikProps.errors}
+                  touched={formikProps.touched}
+                />
+
+                <Box display="flex" justifyContent="space-between">
+                  <Typography
+                    className="cursor-pointer"
+                    color="secondary"
+                    onClick={() => setIsLoginPage((prev) => !prev)}
+                  >
+                    {isLoginPage
+                      ? "Create new account"
+                      : "Already have an account?"}
+                  </Typography>
+                  <Typography color="secondary">
+                    Forgot password?
+                  </Typography>
+                </Box>
+                <Button
+                  type="submit"
+                  className="mt-5"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                >
+                  {isLoginPage ? "Login" : "Register"}
+                </Button>
+              </form>
+            )}
+          </Formik>
         </Box>
       </Box>
     </div>

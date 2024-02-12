@@ -7,7 +7,9 @@ import theme from "./theme";
 
 function ImageZoom({ smallImage, largeImage }) {
   return (
-    <Box sx={{border: `0.5px solid ${theme.palette.primary.border}`}} className="w-[315px] h-[400px] m-auto relative border-0.5 border-gray-300">
+    <Box
+      sx={{ border: `0.5px solid ${theme.palette.primary.border}` }}
+      className="h-[400px] md:w-[415px] md:h-[500px] m-auto relative border-0.5 border-gray-300">
       <ReactImageMagnify
         {...{
           smallImage: {
@@ -34,61 +36,73 @@ function ImageZoom({ smallImage, largeImage }) {
   );
 }
 
-function ProductModel({ onClose }) {
+function ProductModel({ onClose, product }) {
   const [mainImage, setMainImage] = useState(
-    "https://templatebeta.com/Prestashop/PRS01/TB_ps_fashion_zurea_122/58-large_default/adidas-t-shirts.jpg"
+    "../src/assets/images/" + product.mainImage
   );
 
   const handleImageClick = (imageUrl) => {
     setMainImage(imageUrl);
   };
 
+  const handleClose = () => {
+    onClose();
+    document.body.style.overflow = "auto";
+  };
+
+  document.body.style.overflow = "hidden";
+  console.log(product.subImages[0]);
+
   return (
-    <Box className="h-[90vh] w-[90vw] overflow-scroll flex flex-col lg:flex-row bg-white absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 max-w-[1300px]  py-20 px-6 gap-10 items-start">
-      
-      <CloseIcon
-        className="absolute text-3xl cursor-pointer right-6 top-6"
-        onClick={onClose}
-      />
+    <Box className="h-screen w-screen overflow-hidden flex justify-center items-center bg-gray-800 bg-opacity-50">
+      <Box className="relative bg-white p-6 px-20 rounded-lg overflow-y-auto max-w-[95vw] max-h-[95vh]">
+        <CloseIcon
+          className="absolute text-3xl cursor-pointer right-4 top-4"
+          onClick={handleClose}
+        />
 
-      <Box className="flex flex-col flex-1">
-        <ImageZoom smallImage={mainImage} largeImage={mainImage} />
-        <Box className="flex justify-between w-full gap-1 mx-auto mt-1">
-          {[100, 200, 300, 400].map((i) => (
-            <Box
-              key={i}
-              component="img"
-              className="object-cover border border-gray-300 w-[100px] cursor-pointer"
-              alt="The house from the offer."
-              src={`https://placehold.co/${i}`}
-              onClick={() => handleImageClick(`https://placehold.co/${i}`)}
-            />
-          ))}
-        </Box>
-      </Box>
+        <Box className="flex flex-col lg:flex-row gap-6">
+          <Box className="flex flex-col flex-1">
+            <Box>
+              <ImageZoom smallImage={mainImage} largeImage={mainImage} />
+              <Box className="flex justify-between w-1/4 h-[100px] md:w-[415px] md:mx-auto gap-1 mt-1">
+                {product.subImages.map((subImage) => (
+                  <Box
+                    key={subImage}
+                    component="img"
+                    className="object-cover border border-gray-300 md:w-[100px] cursor-pointer"
+                    alt="The house from the offer."
+                    src={`../src/assets/images/${subImage.imagePath}`}
+                    onClick={() =>
+                      handleImageClick(`../src/assets/images/${subImage.imagePath}`)
+                    }
+                  />
+                ))}
+              </Box>
+            </Box>
+          </Box>
 
-      <Box className="flex flex-col w-full gap-6 ">
-        <Typography variant="h5" className="font-semibold">
-          MULTICOLOR SHIRTS
-        </Typography>
-        {/* StarRatings component */}
-        <Typography className="text-2xl">$59.99</Typography>
-        <Typography>
-          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eos earum
-          vitae voluptatibus exercitationem, dignissimos neque consequuntur
-          doloribus id totam sapiente? Adipisci quia laudantium veniam
-        </Typography>
-        <Box className="flex flex-wrap gap-2">
-          {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-            <Chip key={i} label="Chip Outlined" variant="filled" />
-          ))}
+          <Box className="flex flex-col flex-1 gap-6">
+            <Typography variant="h5" className="font-semibold">
+              {product.name}
+            </Typography>
+            <Typography className="text-2xl">${product.price}</Typography>
+            <Typography>
+              {product.description}
+            </Typography>
+            <Box className="flex flex-wrap gap-2">
+              {product.tags.map((tag) => (
+                <Chip key={tag.tagId} label={tag.name} variant="filled" />
+              ))}
+            </Box>
+            <Button
+              variant="outlined"
+              startIcon={<FavoriteIcon />}
+              className="flex gap-3 py-2 w-max hover:bg-[#131118] hover:text-white">
+              Add to Wishlist
+            </Button>
+          </Box>
         </Box>
-        <Button
-          variant="outlined"
-          startIcon={<FavoriteIcon />}
-          className="flex gap-3 py-2 w-max hover:bg-[#131118] hover:text-white">
-          Add to Wishlist
-        </Button>
       </Box>
     </Box>
   );

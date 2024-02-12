@@ -122,11 +122,12 @@ namespace ProductCatalogue.Controllers
             // Process main image if included in the request
             if (productUpdateDTO.MainImage != null && productUpdateDTO.MainImage.Length > 0)
             {
-                var uploadsFolder = Path.Combine(environment.WebRootPath, "Upload", "images");
+                var uploadsFolder = @"E:\React Project\Product-Catalogue\Product Catalogue\src\assets\images";
+
                 var uniqueMainFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(productUpdateDTO.MainImage.FileName);
                 var mainFilePath = Path.Combine(uploadsFolder, uniqueMainFileName);
 
-                using (var fileStream = new FileStream(mainFilePath, FileMode.Create))
+                using (var fileStream = new FileStream(uniqueMainFileName, FileMode.Create))
                 {
                     await productUpdateDTO.MainImage.CopyToAsync(fileStream);
                 }
@@ -182,7 +183,7 @@ namespace ProductCatalogue.Controllers
             // Process main image
             if (productCreateDTO.MainImage != null && productCreateDTO.MainImage.Length > 0)
             {
-                var uploadsFolder = Path.Combine(environment.WebRootPath, "Upload", "images");
+                var uploadsFolder = @"E:\React Project\Product-Catalogue\Product Catalogue\src\assets\images";
                 if (!Directory.Exists(uploadsFolder))
                 {
                     Directory.CreateDirectory(uploadsFolder);
@@ -207,10 +208,8 @@ namespace ProductCatalogue.Controllers
 
             int productId = product.ProductId;
 
-
             var productTagsToDelete = await context.ProductTag.Where(productTag => productTag.ProductId == productId).ToListAsync();
             context.ProductTag.RemoveRange(productTagsToDelete);
-
 
             foreach (var tagId in productCreateDTO.TagIds)
             {
@@ -220,13 +219,12 @@ namespace ProductCatalogue.Controllers
 
             await context.SaveChangesAsync();
 
-
             // Process sub images
             if (productCreateDTO.SubImages != null && productCreateDTO.SubImages.Count > 0)
             {
                 foreach (var subImage in productCreateDTO.SubImages)
                 {
-                    var uploadsFolder = Path.Combine(environment.WebRootPath, "Upload", "images");
+                    var uploadsFolder = @"E:\React Project\Product-Catalogue\Product Catalogue\src\assets\images";
                     if (!Directory.Exists(uploadsFolder))
                     {
                         Directory.CreateDirectory(uploadsFolder);
@@ -255,8 +253,8 @@ namespace ProductCatalogue.Controllers
             }
 
             return Ok(new Response { Status = "Success", Message = "Tags added successfully" });
-
         }
+
 
     }
 }

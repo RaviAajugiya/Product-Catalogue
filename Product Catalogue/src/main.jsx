@@ -13,6 +13,8 @@ import "./index.css";
 import Login from "./components/Login/Login.jsx";
 import Header from "./components/Header/Header.jsx";
 import { StyledEngineProvider } from "@mui/material";
+import { Provider } from "react-redux";
+import { store } from "./redux/store.js";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -24,12 +26,11 @@ const router = createBrowserRouter(
 );
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  // <Provider store={store}>
-  <StyledEngineProvider injectFirst>
-    <ThemeProvider theme={theme}>
-      <RouterProvider router={router} />
-    </ThemeProvider>
-  </StyledEngineProvider>
-
-  // </Provider>
+  <Provider store={store}>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <RouterProvider router={router} />
+      </ThemeProvider>
+    </StyledEngineProvider>
+  </Provider>
 );

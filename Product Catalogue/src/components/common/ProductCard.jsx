@@ -7,11 +7,13 @@ import { Box, Button, CardActionArea, Modal } from "@mui/material";
 import ProductModel from "./ProductModel";
 import theme from "./theme";
 
-function ProductCard() {
+// import "../../assets/images";
+
+function ProductCard({ product }) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
+  console.log(product.mainImage);
   return (
     <Box sx={{ minWidth: "150px" }}>
       <CardActionArea
@@ -20,8 +22,8 @@ function ProductCard() {
         onClick={handleOpen}>
         <CardMedia
           component="img"
-          image="https://templatebeta.com/Prestashop/PRS01/TB_ps_fashion_zurea_122/58-large_default/adidas-t-shirts.jpg"
-          alt="green iguana"
+          image={"../src/assets/images/" + product.mainImage}
+          alt="Product Image"
         />
       </CardActionArea>
       <CardContent>
@@ -32,15 +34,15 @@ function ProductCard() {
             textAlign: "center",
           }}>
           <Typography gutterBottom component="p">
-            Men Cap
+            {product.name} {/* Use product name from props */}
           </Typography>
           <Typography sx={{ fontWeight: "bold" }} gutterBottom component="p">
-            $39.99
+            ${product.price.toFixed(2)} {/* Use product price from props */}
           </Typography>
         </Box>
       </CardContent>
       <Modal open={open} onClose={handleClose}>
-        <ProductModel onClose={handleClose} />
+        <ProductModel onClose={handleClose} product={product} />
       </Modal>
     </Box>
   );
