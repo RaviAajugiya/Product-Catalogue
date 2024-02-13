@@ -3,7 +3,6 @@
     public class SubImagesCreateDTO
     {
         public int? ProductId { get; set; }
-        public IFormFile? SubImage { get; set; }
-        public string? SubImagePath { get; set; }
+        public List<IFormFile> SubImages { get; set; } // List of IFormFile for multiple images
     }
 }

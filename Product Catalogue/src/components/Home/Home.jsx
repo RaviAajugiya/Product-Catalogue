@@ -13,7 +13,9 @@ import {
   Slider,
   Typography,
   Menu,
-  IconButton, // Import IconButton component
+  IconButton,
+  FormControl,
+  InputLabel, // Import IconButton component
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search"; // Import SearchIcon component
 import theme from "../common/theme";
@@ -60,12 +62,7 @@ function Home() {
     if (priceRange[1] !== 100) params.append("maxPrice", priceRange[1]);
 
     setSearchParams(params.toString());
-  }, [
-    selectedFilters,
-    selectedSorting,
-    setSearchParams,
-  ]);
-
+  }, [selectedFilters, selectedSorting, setSearchParams]);
 
   const handleFilterChange = (event) => {
     setSelectedFilters(event.target.value);
@@ -115,23 +112,26 @@ function Home() {
             <SearchIcon />
           </IconButton>
         </Box>
+        <FormControl>
+          <InputLabel id="demo-simple-select-helper-label">Age</InputLabel>
+          <Select
+            labelId="demo-simple-select-helper-label"
+            size="small"
 
-        <Select
-          size="small"
-          multiple
-          displayEmpty
-          value={selectedFilters}
-          onChange={handleFilterChange}
-          variant="outlined"
-          className="w-52"
-          placeholder="Filter">
-          <MenuItem selected>Filter by tags</MenuItem>
-          <MenuItem value="filter1">Filter 1</MenuItem>
-          <MenuItem value="filter2">Filter 2</MenuItem>
-          <MenuItem value="filter3">Filter 3</MenuItem>
-          <MenuItem value="filter4">Filter 4</MenuItem>
-          <MenuItem value="filter5">Filter 5</MenuItem>
-        </Select>
+            label="Age"
+            multiple
+            value={selectedFilters}
+            onChange={handleFilterChange}
+            variant="outlined"
+            className="w-52"
+            placeholder="Filter">
+            <MenuItem value="filter1">Filter 1</MenuItem>
+            <MenuItem value="filter2">Filter 2</MenuItem>
+            <MenuItem value="filter3">Filter 3</MenuItem>
+            <MenuItem value="filter4">Filter 4</MenuItem>
+            <MenuItem value="filter5">Filter 5</MenuItem>
+          </Select>
+        </FormControl>
 
         <Select
           size="small"
@@ -139,7 +139,9 @@ function Home() {
           onChange={(e) => setSelectedSorting(e.target.value)}
           variant="outlined"
           className="w-52">
-          <MenuItem value="">Sort</MenuItem>
+          <MenuItem value="" selected>
+            Sort
+          </MenuItem>
           <MenuItem value="nameAsc">Name Ascending</MenuItem>
           <MenuItem value="nameDesc">Name Descending</MenuItem>
         </Select>
@@ -182,7 +184,9 @@ function Home() {
         </Box>
       </Box>
 
-      <Box className='pt-2' sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+      <Box
+        className="pt-2"
+        sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
         {selectedFilters.map((filter) => (
           <Chip
             key={filter}

@@ -70,6 +70,28 @@ namespace ProductCatalogue.Controllers
             return Ok(productDTOs);
         }
 
+        [HttpGet("{productId}")]
+        public async Task<ActionResult<ProductDTO>> GetProductById(int productId)
+        {
+            var product = await context.Product
+                .Include(p => p.SubImages)
+                .Include(p => p.ProductTags)
+                    .ThenInclude(pt => pt.Tag)
+                .FirstOrDefaultAsync(p => p.ProductId == productId);
+
+            if (product == null)
+            {
+                return NotFound(); // Return 404 Not Found if the product is not found
+            }
+
+            // Map the retrieved product entity to a DTO
+            var productDTO = mapper.Map<ProductDTO>(product);
+
+            return Ok(productDTO); // Return 200 OK with the product DTO
+        }
+
+
+
 
 
         [HttpGet("subimage/{productId}")]
@@ -129,7 +151,7 @@ namespace ProductCatalogue.Controllers
                 var uniqueMainFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(productUpdateDTO.MainImage.FileName);
                 var mainFilePath = Path.Combine(uploadsFolder, uniqueMainFileName);
 
-                using (var fileStream = new FileStream(uniqueMainFileName, FileMode.Create))
+                using (var fileStream = new FileStream(mainFilePath, FileMode.Create))
                 {
                     await productUpdateDTO.MainImage.CopyToAsync(fileStream);
                 }
@@ -149,10 +171,10 @@ namespace ProductCatalogue.Controllers
 
             await context.SaveChangesAsync();
 
-            // Process sub images if included in the request
+            //Process sub images if included in the request
             //if (productUpdateDTO.SubImages != null && productUpdateDTO.SubImages.Count > 0)
             //{
-            //    product.SubImages = []
+            //    product.SubImages = [];
             //    foreach (var subImage in productUpdateDTO.SubImages)
             //    {
             //        var uploadsFolder = Path.Combine(environment.WebRootPath, "Upload", "images");
@@ -198,6 +220,7 @@ namespace ProductCatalogue.Controllers
                 {
                     await productCreateDTO.MainImage.CopyToAsync(fileStream);
                 }
+
 
                 // Store the relative path for main image 
                 relativeMainImagePath = uniqueMainFileName;

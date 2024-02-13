@@ -38,6 +38,9 @@ dependencies:
   react-dom:
     specifier: ^18.2.0
     version: 18.2.0(react@18.2.0)
+  react-files:
+    specifier: ^3.0.0
+    version: 3.0.0(react-dom@18.2.0)(react@18.2.0)
   react-image-magnify:
     specifier: ^2.7.4
     version: 2.7.4(react@18.2.0)
@@ -3089,6 +3092,16 @@ packages:
 
   /react-fast-compare@2.0.4:
     resolution: {integrity: sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw==}
+    dev: false
+
+  /react-files@3.0.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-/Zz7S98vZFYxHw3RVSZcf3dD+xO714ZQd/jEhIp8q+MofBgydXWlHdw05TA4jradL7XpZFPvJaIvM6Z6I5nIHw==}
+    peerDependencies:
+      react: '>=16.8'
+      react-dom: '>=16.8'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /react-image-magnify@2.7.4(react@18.2.0):

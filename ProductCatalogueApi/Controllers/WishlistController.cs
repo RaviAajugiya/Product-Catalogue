@@ -64,6 +64,32 @@ namespace ProductCatalogue.Controllers
         }
 
 
+        [HttpDelete("{productId}")]
+        [Authorize]
+        public async Task<IActionResult> Delete(int productId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var wishlistItem = await context.Wishlist
+                .FirstOrDefaultAsync(w => w.UserId == userId && w.ProductId == productId);
+
+            if (wishlistItem == null)
+            {
+                return NotFound();
+            }
+
+            context.Wishlist.Remove(wishlistItem);
+            await context.SaveChangesAsync();
+
+            return Ok(new Response { Status = "Success", Message = "Product removed from wishlist successfully" });
+        }
+
+
+
 
         [HttpPost("{productId}")]
         [Authorize]

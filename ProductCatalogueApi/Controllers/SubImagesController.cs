@@ -38,7 +38,7 @@ namespace ProductCatalogue.Controllers
 
             foreach (var subImageDTO in subImageDTOs)
             {
-                var relativeUrl = Path.GetFullPath("wwwroot\\Upload\\images\\" + subImageDTO.ImagePath);
+                var relativeUrl = subImageDTO.ImagePath;
                 subImageDTO.ImagePath = relativeUrl;
             }
 
@@ -62,27 +62,32 @@ namespace ProductCatalogue.Controllers
         [HttpPost("{productId}")]
         public async Task<ActionResult> Post(int productId, [FromForm] SubImagesCreateDTO subImagesCreateDTO)
         {
-            string relativeSubImagePath = null;
-
-            if (subImagesCreateDTO.SubImage != null && subImagesCreateDTO.SubImage.Length > 0)
+            if (subImagesCreateDTO.SubImages != null && subImagesCreateDTO.SubImages.Count > 0)
             {
-                var uploadsFolder = Path.Combine(environment.WebRootPath, "Upload", "images");
-                var uniqueMainFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(subImagesCreateDTO.SubImage.FileName);
-                var mainFilePath = Path.Combine(uploadsFolder, uniqueMainFileName);
+                var uploadsFolder = @"E:\React Project\Product-Catalogue\Product Catalogue\src\assets\images";
 
-                using (var fileStream = new FileStream(mainFilePath, FileMode.Create))
+
+                foreach (var image in subImagesCreateDTO.SubImages)
                 {
-                    await subImagesCreateDTO.SubImage.CopyToAsync(fileStream);
+                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(image.FileName);
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await image.CopyToAsync(fileStream);
+                    }
+
+                    var subImage = new SubImage { ProductId = productId, ImagePath = uniqueFileName };
+                    context.Add(subImage);
                 }
-                relativeSubImagePath = uniqueMainFileName;
+
+                await context.SaveChangesAsync();
+
+                return Ok(new Response { Status = "Success", Message = "Images added successfully" });
             }
 
-            var subImage = new SubImage { ProductId = productId, ImagePath = relativeSubImagePath };
-            context.Add(subImage);
-            await context.SaveChangesAsync();
-
-            return Ok(new Response { Status = "Success", Message = "Tags added successfully" });
-
+            return BadRequest("No images provided.");
         }
+
     }
 }

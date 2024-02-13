@@ -14,3 +14,5 @@ function Admin() {
 }
 
 export default Admin;
+
+<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae distinctio nostrum itaque deleniti, saepe nisi sapiente, autem incidunt deserunt, debitis commodi quam nobis. Nisi officia repellendus iusto esse? Odio, assumenda!</p>

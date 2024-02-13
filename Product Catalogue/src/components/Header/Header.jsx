@@ -33,9 +33,9 @@ function Header() {
   useEffect(() => {
     if (localData) {
       const token = JSON.parse(localData).token;
-      console.log(token);
+      // console.log(token);
       const decodedToken = jwtDecode(token);
-      console.log(decodedToken);
+      // console.log(decodedToken);
 
       const username =
         decodedToken[

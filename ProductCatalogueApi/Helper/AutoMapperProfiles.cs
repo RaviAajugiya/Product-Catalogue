@@ -24,5 +24,16 @@ public class AutoMapperProfiles : Profile
 
         CreateMap<SubImage, SubImageDTO>();
         CreateMap<SubImagesCreateDTO, SubImage>();
+
+        CreateMap<ProductTag, TagDTO>();
+        CreateMap<Product, ProductDTO>()
+            .ForMember(dest => dest.Tags, opt => opt.MapFrom(src =>
+                src.ProductTags.Select(pt => pt.Tag).Select(tag => new TagDTO
+                {
+                    TagId = tag.TagId,
+                    Name = tag.Name
+                }).ToList()
+            ));
+
     }
 }

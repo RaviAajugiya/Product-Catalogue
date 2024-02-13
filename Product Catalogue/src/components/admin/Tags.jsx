@@ -18,7 +18,7 @@ import { Cancel } from "@mui/icons-material";
 function Tags() {
   const [addTags] = useAddTagsMutation();
   const { data: tags } = useGetTagsQuery();
-  console.log(tags);
+  // console.log(tags);
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Tag name is required"),
@@ -42,11 +42,11 @@ function Tags() {
   };
 
   const handleDeleteTag = (tag) => {
-    console.log("Delete tag:", tag);
+    // console.log("Delete tag:", tag);
   };
 
   return (
-    <Box className="w-1/2">
+    <Box className="w-1/3">
       <Box className="w-fit m-auto">
         <Typography
           borderBottom={1}

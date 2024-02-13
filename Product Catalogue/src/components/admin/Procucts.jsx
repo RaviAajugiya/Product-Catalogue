@@ -11,67 +11,156 @@ import {
 import React, { useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { MuiFileInput } from "mui-file-input";
-import { useAddProductMutation } from "../../redux/api/productApi";
+import {
+  useAddProductMutation,
+  useEditProductMutation,
+  useGetProductByIdQuery,
+} from "../../redux/api/productApi";
 import { useGetTagsQuery } from "../../redux/api/tagsApi";
+import Files from "react-files";
+import { Cancel } from "@mui/icons-material";
+import { useParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
+import {
+  useAddImageMutation,
+  useDeleteImageMutation,
+  useGetImagesByProductIdQuery,
+} from "../../redux/api/subImageApi";
 
 function Products() {
   const [addProduct] = useAddProductMutation();
+  const [editProduct] = useEditProductMutation();
+  const [deleteImage] = useDeleteImageMutation();
+  const [addImage] = useAddImageMutation();
+
   const { data: tags } = useGetTagsQuery();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [initialValues, setInitialValues] = useState({
+    name: "",
+    description: "",
+    price: "",
+    selectedTags: [],
+  });
+
+  const productId = searchParams.get("id");
+
+  const { data: imgData } = useGetImagesByProductIdQuery(productId);
+  const { data: product } = useGetProductByIdQuery(productId);
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
     description: Yup.string().required("Description is required"),
     price: Yup.number().required("Price is required"),
-    // selectedTags: Yup.array().min(1, "At least one tag is required"),
   });
 
-  const initialValues = {
-    name: "",
-    description: "",
-    price: "",
-    selectedTags: [], // Initialize as an empty array
-  };
+  useEffect(() => {
+    if (product) {
+      setInitialValues({
+        name: product?.name || "",
+        description: product?.description || "",
+        price: product?.price || "",
+        selectedTags: (product?.tags || []).map((tag) => tag.tagId),
+      });
+    }
+  }, [product]);
+
+  console.log(initialValues);
 
   const [mainImageValue, setMainImageValue] = useState(null);
   const [subImagesValue, setSubImagesValue] = useState([]);
 
-  const handleMainImageChange = (newValue, info, event) => {
-    setMainImageValue(newValue);
+  const [mainImagePreview, setMainImagePreview] = useState(null);
+  const [subImagesPreview, setSubImagesPreview] = useState([]);
+
+  useEffect(() => {
+    if (product) {
+      setMainImagePreview(`src/assets/images/${product.mainImage}`);
+
+      if (productId) {
+        setSubImagesPreview(
+          imgData?.map((subImage) => {
+            return {
+              ...subImage,
+              imagePath: `src/assets/images/${subImage.imagePath}`,
+            };
+          })
+        );
+      } else {
+        product?.subImages.forEach((img) =>
+          setSubImagesPreview(`src/assets/images/${img.imagePath}`)
+        );
+      }
+    }
+  }, [product, imgData]);
+
+  const handleMainImageChange = (files) => {
+    const file = files[0];
+    setMainImageValue(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setMainImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
   };
 
-  const handleSubImagesChange = (newValues, info, event) => {
-    const allSubImages = [...subImagesValue, ...Array.from(newValues)];
-    const uniqueSubImages = Array.from(new Set(allSubImages));
-    setSubImagesValue(uniqueSubImages);
+  const handleSubImagesChange = (files) => {
+    console.log(files);
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append(`SubImages`, file);
+    });
+    addImage({ id: productId, data: formData });
+
+    const newSubImages = Array.from(files);
+    setSubImagesValue(newSubImages);
+    const readers = newSubImages.map((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setSubImagesPreview((prevPreviews) => [...prevPreviews, reader.result]);
+      };
+      reader.readAsDataURL(file);
+      return reader;
+    });
+  };
+
+  const handleRemoveMainImage = () => {
+    setMainImageValue(null);
+    setMainImagePreview(null);
+  };
+
+  const handleRemoveSubImage = (index) => {
+    setSubImagesValue((prevSubImages) =>
+      prevSubImages.filter((_, i) => i !== index)
+    );
+    setSubImagesPreview((prevPreviews) =>
+      prevPreviews.filter((_, i) => i !== index)
+    );
   };
 
   const handleSubmit = async (values) => {
+    console.log(values);
     const formData = new FormData();
     formData.append("name", values.name);
     formData.append("description", values.description);
     formData.append("price", values.price);
     formData.append("mainImage", mainImageValue);
 
-    // Append each sub image
     subImagesValue.forEach((image, index) => {
       formData.append(`subImages`, image);
     });
-    console.log(values.selectedTags);
-    // Append tag ids as comma-separated string
     values.selectedTags.forEach((tag) => [formData.append(`tagIds`, tag)]);
-    // formData.append("tagIds", values.selectedTags);
 
-    try {
-      const response = await addProduct(formData);
-      console.log("Product added successfully:", response.data);
-    } catch (error) {
-      console.error("Error adding product:", error);
-    }
+    console.log("main Image", formData.get("mainImage"));
+    console.log("SubImages", formData.getAll("subImages"));
+
+    productId
+      ? editProduct({ id: productId, data: formData })
+      : addProduct(formData);
   };
 
   return (
-    <Box className="w-1/2">
+    <Box className="w-2/3">
       <Typography
         borderBottom={1}
         borderColor="grey.500"
@@ -80,19 +169,21 @@ function Products() {
         Product Management
       </Typography>
       <Formik
+        enableReinitialize
         initialValues={initialValues}
         onSubmit={handleSubmit}
         validationSchema={validationSchema}>
         {(formikProps) => (
           <form onSubmit={formikProps.handleSubmit}>
             <TextField
+              size="small"
               fullWidth
               margin="normal"
               id="name"
               name="name"
               label="Name"
               variant="outlined"
-              value={formikProps.values.name}
+              value={formikProps.values?.name}
               onChange={formikProps.handleChange}
               onBlur={formikProps.handleBlur}
               error={
@@ -101,13 +192,14 @@ function Products() {
               helperText={formikProps.touched.name && formikProps.errors.name}
             />
             <TextField
+              size="small"
               fullWidth
               margin="normal"
               id="description"
               name="description"
               label="Description"
               variant="outlined"
-              value={formikProps.values.description}
+              value={formikProps.values?.description}
               onChange={formikProps.handleChange}
               onBlur={formikProps.handleBlur}
               error={
@@ -120,13 +212,14 @@ function Products() {
               }
             />
             <TextField
+              size="small"
               fullWidth
               margin="normal"
               id="price"
               name="price"
               label="Price"
               variant="outlined"
-              value={formikProps.values.price}
+              value={formikProps.values?.price}
               onChange={formikProps.handleChange}
               onBlur={formikProps.handleBlur}
               error={
@@ -134,27 +227,17 @@ function Products() {
               }
               helperText={formikProps.touched.price && formikProps.errors.price}
             />
-            <MuiFileInput
-              className="w-full my-4 mb-5"
-              placeholder="Select main image"
-              value={mainImageValue}
-              onChange={handleMainImageChange}
-            />
-            <MuiFileInput
-              className="w-full mt-1 mb-2"
-              placeholder="Select sub images"
-              value={subImagesValue}
-              multiple
-              onChange={handleSubImagesChange}
-            />
+
             <FormControl fullWidth margin="normal">
               <InputLabel id="selected-tags-label">Tags</InputLabel>
               <Select
+                size="small"
                 labelId="selected-tags-label"
                 id="selected-tags"
+                label="Tags"
                 name="selectedTags"
                 multiple
-                value={formikProps.values.selectedTags}
+                value={formikProps.values?.selectedTags || []}
                 onChange={formikProps.handleChange}
                 onBlur={formikProps.handleBlur}
                 error={
@@ -170,12 +253,88 @@ function Products() {
                   ))}
               </Select>
             </FormControl>
-            {formikProps.touched.selectedTags &&
-              formikProps.errors.selectedTags && (
-                <Typography variant="caption" color="error">
-                  {formikProps.errors.selectedTags}
-                </Typography>
-              )}
+
+            <Box className="flex gap-2 w-full mt-3">
+              <Box
+                className="w-1/3"
+                sx={{
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                  padding: "8px",
+                }}>
+                <Files
+                  className="files-dropzone"
+                  onChange={handleMainImageChange}
+                  accepts={[".jpg", ".png", ".jpeg"]}
+                  maxFileSize={10000000}
+                  minFileSize={0}
+                  clickable>
+                  <div className="cursor-pointer">
+                    click to upload main image
+                  </div>
+                </Files>
+
+                {mainImagePreview && (
+                  <Box className="w-fit mt-4 relative">
+                    <img
+                      src={mainImagePreview}
+                      alt="Main Image Preview"
+                      style={{
+                        width: "70px",
+                        height: "70px",
+                        objectFit: "cover",
+                      }}
+                    />
+                    <Cancel
+                      onClick={handleRemoveMainImage}
+                      className="bg-white rounded-full absolute -top-2 -right-2"
+                    />
+                  </Box>
+                )}
+              </Box>
+              <Box
+                className="w-2/3"
+                sx={{
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                  padding: "8px",
+                }}>
+                <Files
+                  className="files-dropzone"
+                  onChange={handleSubImagesChange}
+                  accepts={[".jpg", ".png", ".jpeg"]}
+                  maxFileSize={10000000}
+                  minFileSize={0}
+                  clickable>
+                  <div className="cursor-pointer">
+                    click to upload main image
+                  </div>
+                </Files>
+                <Box className="flex gap-2 mt-4 flex-wrap">
+                  {subImagesPreview?.map((preview, index) => (
+                    <Box key={index} position="relative">
+                      <img
+                        src={productId ? preview.imagePath : preview}
+                        alt={`Sub Image Preview ${index}`}
+                        style={{
+                          width: "70px",
+                          height: "70px",
+                          objectFit: "cover",
+                        }}
+                      />
+                      <Cancel
+                        onClick={() => {
+                          handleRemoveSubImage(index);
+                          deleteImage(preview.subImageId);
+                        }}
+                        className="bg-white rounded-full absolute -top-2 -right-2"
+                      />
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            </Box>
+
             <Button
               className="w-full mt-3"
               type="submit"
