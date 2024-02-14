@@ -16,9 +16,24 @@ export const productApi = createApi({
 
   endpoints: (builder) => ({
     getProduct: builder.query({
-      query: () => ({
-        method: "GET",
-      }),
+      query: ({ filter, minPrice, maxPrice, search }) => {
+        console.log(filter, minPrice, maxPrice, search);
+
+        const queryParams = new URLSearchParams();
+        queryParams.append("search", search);
+        queryParams.append("minPrice", minPrice);
+        filter.forEach((f) => {
+          queryParams.append("filter", f);
+        });
+        queryParams.append("maxPrice", maxPrice);
+
+        console.log(queryParams.toString());
+
+        return {
+          method: "GET",
+          url: `?${queryParams.toString()}`,
+        };
+      },
       providesTags: ["Product"],
     }),
 
@@ -26,6 +41,13 @@ export const productApi = createApi({
       query: (id) => ({
         method: "GET",
         url: `${id}`,
+      }),
+      providesTags: ["Product"],
+    }),
+    getMaxPrice: builder.query({
+      query: () => ({
+        method: "GET",
+        url: `maxPrice`,
       }),
       providesTags: ["Product"],
     }),
@@ -63,4 +85,5 @@ export const {
   useAddProductMutation,
   useGetProductByIdQuery,
   useEditProductMutation,
+  useGetMaxPriceQuery,
 } = productApi;

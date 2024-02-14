@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import ProductCard from "../common/ProductCard";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
-import { useGetProductQuery } from "../../redux/api/productApi";
+import { useGetProductByIdQuery, useGetProductQuery } from "../../redux/api/productApi";
 import {
   Box,
   TextField,
@@ -19,20 +19,20 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search"; // Import SearchIcon component
 import theme from "../common/theme";
+import { useGetTagsQuery } from "../../redux/api/tagsApi";
 
 function Home() {
-  const { data: products } = useGetProductQuery();
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [selectedFilters, setSelectedFilters] = useState([]);
-  const [selectedSorting, setSelectedSorting] = useState("");
-  const [priceRange, setPriceRange] = useState([0, 100]);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [initialSyncDone, setInitialSyncDone] = useState(false); // Flag to track initial state sync
+  const [initialSyncDone, setInitialSyncDone] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const { data: tags } = useGetTagsQuery();
+  const [priceRange, setPriceRange] = useState([0, 1000]);
+  const { data: products, refetch } = useGetProductQuery({ filter: selectedFilters, minPrice: priceRange[0], maxPrice: priceRange[1], search: searchText });
+  
   useEffect(() => {
-    setFilteredProducts(products);
+    setFilteredProducts(products?.data);
   }, [products]);
 
   useEffect(() => {
@@ -40,14 +40,17 @@ function Home() {
       const params = new URLSearchParams(searchParams);
       setSearchText(params.get("search") || "");
       setSelectedFilters(params.getAll("filter") || []);
-      setSelectedSorting(params.get("sorting") || "");
       const minPrice = parseInt(params.get("minPrice")) || 0;
       const maxPrice = parseInt(params.get("maxPrice")) || 100;
       setPriceRange([minPrice, maxPrice]);
-
       setInitialSyncDone(true);
     }
   }, [initialSyncDone, searchParams]);
+
+  useEffect(() => {
+    refetch({ filter: selectedFilters, minPrice: priceRange[0], maxPrice: priceRange[1], search: searchText });
+  }, [searchParams]);
+  
 
   const handlePriceChange = (event, newValue) => {
     setPriceRange(newValue);
@@ -57,32 +60,45 @@ function Home() {
     const params = new URLSearchParams();
     if (searchText) params.append("search", searchText);
     selectedFilters.forEach((filter) => params.append("filter", filter));
-    if (selectedSorting) params.append("sorting", selectedSorting);
     if (priceRange[0] !== 0) params.append("minPrice", priceRange[0]);
     if (priceRange[1] !== 100) params.append("maxPrice", priceRange[1]);
 
     setSearchParams(params.toString());
-  }, [selectedFilters, selectedSorting, setSearchParams]);
+  }, [searchText, selectedFilters, priceRange, setSearchParams]);
 
   const handleFilterChange = (event) => {
     setSelectedFilters(event.target.value);
-  };
-
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
   };
 
   return (
     <Container sx={{ mt: 2 }}>
       <Box
         sx={{ border: `0.5px solid ${theme.palette.primary.border}` }}
-        className="border p-4 mt-5 flex justify-between">
-        <Box sx={{ position: "relative" }}>
+        className="border p-1 px-2 mt-5 flex justify-between items-center">
+        <FormControl className="w-60" sx={{ m: 1, minWidth: 120 }}>
+          <Select
+            size="small"
+            value={selectedFilters}
+            onChange={handleFilterChange}
+            displayEmpty
+            multiple
+            inputProps={{ "aria-label": "Without label" }}
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  maxHeight: 500, // Set max height of the dropdown menu
+                },
+              },
+            }}>
+            {tags?.map((tag) => (
+              <MenuItem value={tag.tagId}>{tag.name}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <Box className="" sx={{ position: "relative" }}>
           <TextField
+            className="w-60"
             size="small"
             variant="outlined"
             placeholder="Search"
@@ -103,7 +119,6 @@ function Home() {
                 selectedFilters.forEach((filter) =>
                   params.append("filter", filter)
                 );
-              if (selectedSorting) params.append("sorting", selectedSorting);
               if (priceRange[0] !== 0) params.append("minPrice", priceRange[0]);
               if (priceRange[1] !== 100)
                 params.append("maxPrice", priceRange[1]);
@@ -112,75 +127,31 @@ function Home() {
             <SearchIcon />
           </IconButton>
         </Box>
-        <FormControl>
-          <InputLabel id="demo-simple-select-helper-label">Age</InputLabel>
-          <Select
-            labelId="demo-simple-select-helper-label"
-            size="small"
 
-            label="Age"
-            multiple
-            value={selectedFilters}
-            onChange={handleFilterChange}
-            variant="outlined"
-            className="w-52"
-            placeholder="Filter">
-            <MenuItem value="filter1">Filter 1</MenuItem>
-            <MenuItem value="filter2">Filter 2</MenuItem>
-            <MenuItem value="filter3">Filter 3</MenuItem>
-            <MenuItem value="filter4">Filter 4</MenuItem>
-            <MenuItem value="filter5">Filter 5</MenuItem>
-          </Select>
-        </FormControl>
-
-        <Select
-          size="small"
-          value={selectedSorting}
-          onChange={(e) => setSelectedSorting(e.target.value)}
-          variant="outlined"
-          className="w-52">
-          <MenuItem value="" selected>
-            Sort
-          </MenuItem>
-          <MenuItem value="nameAsc">Name Ascending</MenuItem>
-          <MenuItem value="nameDesc">Name Descending</MenuItem>
-        </Select>
-
-        <Box>
-          <MenuItem onClick={handleMenuOpen} style={{ cursor: "pointer" }}>
+        <Box className=" gap-3 items-center">
+          <Box>
             Price: ${priceRange[0]} - ${priceRange[1]}
-          </MenuItem>
-
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}>
-            <MenuItem>
-              <Slider
-                className="w-52"
-                size="small"
-                value={priceRange}
-                onChange={(event, newValue) => setPriceRange(newValue)}
-                onChangeCommitted={(event, newValue) => {
-                  handlePriceChange(event, newValue);
-                  const params = new URLSearchParams();
-                  if (searchText) params.append("search", searchText);
-                  selectedFilters.forEach((filter) =>
-                    params.append("filter", filter)
-                  );
-                  if (selectedSorting)
-                    params.append("sorting", selectedSorting);
-                  if (newValue[0] !== 0) params.append("minPrice", newValue[0]);
-                  if (newValue[1] !== 100)
-                    params.append("maxPrice", newValue[1]);
-                  setSearchParams(params.toString());
-                }}
-                aria-labelledby="price-slider"
-                min={0}
-                max={100}
-              />
-            </MenuItem>
-          </Menu>
+          </Box>
+          <Slider
+            className="w-52 p-0"
+            size="small"
+            value={priceRange}
+            onChange={(event, newValue) => setPriceRange(newValue)}
+            onChangeCommitted={(event, newValue) => {
+              handlePriceChange(event, newValue);
+              const params = new URLSearchParams();
+              if (searchText) params.append("search", searchText);
+              selectedFilters.forEach((filter) =>
+                params.append("filter", filter)
+              );
+              if (newValue[0] !== 0) params.append("minPrice", newValue[0]);
+              if (newValue[1] !== 100) params.append("maxPrice", newValue[1]);
+              setSearchParams(params.toString());
+            }}
+            aria-labelledby="price-slider"
+            min={0}
+            max={products?.maxPrice}
+          />
         </Box>
       </Box>
 
@@ -197,7 +168,7 @@ function Home() {
               );
             }}
             variant="outlined"
-            sx={{ marginRight: 1, marginBottom: 1, width: 100 }} // Set fixed width
+            sx={{ marginRight: 1, marginBottom: 1, width: 100 }} 
           />
         ))}
       </Box>

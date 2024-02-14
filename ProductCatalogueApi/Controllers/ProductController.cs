@@ -37,9 +37,39 @@ namespace ProductCatalogue.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> Get(
+     [FromQuery] List<int>? filter,
+     [FromQuery] int? minPrice,
+     [FromQuery] int? maxPrice,
+     [FromQuery] string? search)
         {
-            var productDTOs = await context.Product
+            IQueryable<Product> query = context.Product.Include(p => p.ProductTags);
+
+            if (filter != null && filter.Any())
+            {
+                query = query.Where(p => p.ProductTags.Any(pt => filter.Contains(pt.TagId)));
+            }
+
+            if (minPrice.HasValue && maxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= minPrice.Value && p.Price <= maxPrice.Value);
+            }
+            else if (minPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= minPrice.Value);
+            }
+            else if (maxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price <= maxPrice.Value);
+            }
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(p => p.Name.Contains(search));
+            }
+            int? dbMaxPrice = await context.Product.MaxAsync(p => (int?)p.Price);
+
+            var productDTOs = await query
                 .Select(product => new ProductDTO
                 {
                     ProductId = product.ProductId,
@@ -67,8 +97,21 @@ namespace ProductCatalogue.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(productDTOs);
+            return Ok(new { MaxPrice = dbMaxPrice, Data = productDTOs });
         }
+
+
+        [HttpGet("maxPrice")]
+        public async Task<ActionResult> Get()
+        {
+            int? dbMaxPrice = await context.Product.MaxAsync(p => (int?)p.Price);
+            return Ok(dbMaxPrice);
+        }
+
+
+
+
+
 
         [HttpGet("{productId}")]
         public async Task<ActionResult<ProductDTO>> GetProductById(int productId)
