@@ -52,11 +52,11 @@ function Tags() {
           borderBottom={1}
           borderColor="grey.500"
           variant="h6"
-          className="mb-2 pb-1 text-center text-2xl">
+          className=" pb-1 text-center text-2xl">
           Tag Management
         </Typography>
       </Box>
-      <Box className="mt-5">
+      <Box className="mt-2">
         <Box className="">
           <Formik
             initialValues={initialValues}

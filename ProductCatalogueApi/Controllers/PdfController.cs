@@ -31,7 +31,7 @@ namespace ProductCatalogue.Controllers
         }
 
 
-        [HttpGet("wishlist-to-pdf")]
+        [HttpGet]
         public async Task<IActionResult> ConvertWishlistToPdf()
         {
             ApplicationUser currentUser = await userManager.GetUserAsync(HttpContext.User);
@@ -60,9 +60,20 @@ namespace ProductCatalogue.Controllers
             string htmlTemplate = await System.IO.File.ReadAllTextAsync(htmlTemplatePath);
 
             StringBuilder htmlContentBuilder = new StringBuilder();
+            htmlContentBuilder.Append("<div class=\"wishlist-items\">");
 
+            int itemCount = 0;
             foreach (var product in wishlistProducts)
             {
+                if (itemCount % 3 == 0)
+                {
+                    if (itemCount > 0)
+                    {
+                        htmlContentBuilder.Append("</div><hr>");
+                    }
+                    htmlContentBuilder.Append("<div class=\"wishlist-row\">");
+                }
+
                 StringBuilder wishlistItemBuilder = new StringBuilder();
                 wishlistItemBuilder.Append("<div class=\"wishlist-item\">");
                 wishlistItemBuilder.Append($"<h2>{product.Name}</h2>");
@@ -72,8 +83,17 @@ namespace ProductCatalogue.Controllers
                 wishlistItemBuilder.Append("</div>");
 
                 htmlContentBuilder.Append(wishlistItemBuilder.ToString());
-                htmlContentBuilder.Append("<hr>");
+
+                itemCount++;
             }
+
+            // Close any open div tag
+            if (itemCount % 3 != 0)
+            {
+                htmlContentBuilder.Append("</div><hr>");
+            }
+
+            htmlContentBuilder.Append("</div>");
 
             string htmlContent = htmlTemplate.Replace("{{WishlistItems}}", htmlContentBuilder.ToString());
 

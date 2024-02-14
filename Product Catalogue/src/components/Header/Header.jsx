@@ -1,4 +1,14 @@
-import { Button, Container } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  Container,
+  Divider,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
 import React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -16,12 +26,18 @@ import { useSelector } from "react-redux";
 import { login, logout } from "../../redux/slice/authSlice";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
+import LoginIcon from "@mui/icons-material/Login";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 function Header() {
   const [userName, setUserName] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const localData = localStorage.getItem("userData");
   const navigate = useNavigate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
+  };
 
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.auth.userData);
@@ -62,10 +78,10 @@ function Header() {
               color="inherit"
               aria-label="open drawer">
               <Link to={URL.HOME}>
-                <img src={appLogo} alt="" className="w-20" />
+                <img src={appLogo} alt="" className="w-20 mt-2" />
               </Link>
             </IconButton>
-            <Box>
+            <Box className="hidden md:block">
               <Button
                 sx={{ textTransform: "none" }}
                 onClick={() => navigate(URL.HOME)}>
@@ -86,10 +102,11 @@ function Header() {
                 </>
               ) : null}
             </Box>
-            <Box className="flex gap-3 items-center text-black">
-              <Typography>Welocome {userName}</Typography>
+            <Box className="hidden md:flex gap-3 items-center text-black">
+              <Typography>Welcome {userName}!</Typography>
               {userData ? (
                 <Button
+                  startIcon={<LogoutIcon />}
                   sx={{ textTransform: "none" }}
                   variant="contained"
                   onClick={() => {
@@ -102,6 +119,7 @@ function Header() {
                 </Button>
               ) : (
                 <Button
+                  startIcon={<LoginIcon />}
                   sx={{ textTransform: "none" }}
                   variant="contained"
                   onClick={() => {
@@ -111,6 +129,53 @@ function Header() {
                 </Button>
               )}
             </Box>
+            <Avatar className="md:hidden" onClick={toggleDrawer}>
+              A
+            </Avatar>
+            <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer}>
+              <Box sx={{ width: 250 }} onClick={toggleDrawer}>
+                <List>
+                  <ListItem onClick={() => navigate(URL.HOME)}>
+                    <ListItemText primary="Home" />
+                  </ListItem>
+                  <Divider />
+                  <ListItem onClick={() => navigate(URL.WISHLIST)}>
+                    <ListItemText primary="Wishlist" />
+                  </ListItem>
+                  <Divider />
+                  {isAdmin ? (
+                    <ListItem onClick={() => navigate(URL.ADMIN)}>
+                      <ListItemText primary="Manage product" />
+                    </ListItem>
+                  ) : null}
+                  <Divider />
+                  {userData ? (
+                    <ListItem
+                      onClick={() => {
+                        localStorage.removeItem("userData");
+                        dispatch(logout());
+                        navigate(URL.HOME);
+                        window.location.reload();
+                      }}>
+                      <ListItemIcon>
+                        <LogoutIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Logout" />
+                    </ListItem>
+                  ) : (
+                    <ListItem
+                      onClick={() => {
+                        navigate(URL.AUTH);
+                      }}>
+                      <ListItemIcon>
+                        <LoginIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Login" />
+                    </ListItem>
+                  )}
+                </List>
+              </Box>
+            </Drawer>
           </Toolbar>
         </Container>
       </Box>

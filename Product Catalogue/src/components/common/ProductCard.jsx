@@ -73,7 +73,7 @@ function ProductCard({ product }) {
   }, []);
 
   return (
-    <Box sx={{ position: "relative", minWidth: "150px" }}>
+    <Box className='min-w-[140px] relative' >
       <CardActionArea
         sx={{ border: `0.5px solid ${theme.palette.primary.border}` }}
         className="relative"
@@ -84,7 +84,7 @@ function ProductCard({ product }) {
           component="img"
           image={mainImage}
           alt="Product Image"
-          className="h-[312px]"
+          className="h-[190px] sm:h-[300px] md:h-[350px]"
         />
         {isHover && (
           <Box className="flex gap-3 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -114,24 +114,27 @@ function ProductCard({ product }) {
             </IconButton>
             {isAdmin && (
               <>
-                <IconButton
-                  className="bg-white"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent event propagation
-                    // addToWishlist(product.productId);
-                    navigate(`${URL.ADMIN}?id=${product.productId}`);
-                  }}>
-                  <Edit className="hover:scale-110" />
-                </IconButton>
-
-                <IconButton
-                  className="bg-white"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent event propagation
-                    deleteProduct(product.productId);
-                  }}>
-                  <Delete className="hover:scale-110" />
-                </IconButton>
+                <Tooltip title="Edit product">
+                  <IconButton
+                    className="bg-white"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent event propagation
+                      // addToWishlist(product.productId);
+                      navigate(`${URL.ADMIN}?id=${product.productId}`);
+                    }}>
+                    <Edit className="hover:scale-110" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Delete product">
+                  <IconButton
+                    className="bg-white"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent event propagation
+                      deleteProduct(product.productId);
+                    }}>
+                    <Delete className="hover:scale-110" />
+                  </IconButton>
+                </Tooltip>
               </>
             )}
           </Box>

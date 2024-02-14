@@ -7,6 +7,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Autocomplete,
 } from "@mui/material";
 import React, { useState } from "react";
 import { Formik } from "formik";
@@ -16,7 +17,7 @@ import {
   useEditProductMutation,
   useGetProductByIdQuery,
 } from "../../redux/api/productApi";
-import { useGetTagsQuery } from "../../redux/api/tagsApi";
+import { useAddTagsMutation, useGetTagsQuery } from "../../redux/api/tagsApi";
 import Files from "react-files";
 import { Cancel } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
@@ -27,12 +28,14 @@ import {
   useDeleteImageMutation,
   useGetImagesByProductIdQuery,
 } from "../../redux/api/subImageApi";
+import { UploadFile } from "@mui/icons-material";
 
 function Products() {
   const [addProduct] = useAddProductMutation();
   const [editProduct] = useEditProductMutation();
   const [deleteImage] = useDeleteImageMutation();
   const [addImage] = useAddImageMutation();
+  const [addTags] = useAddTagsMutation();
 
   const { data: tags } = useGetTagsQuery();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -60,7 +63,7 @@ function Products() {
         name: product?.name || "",
         description: product?.description || "",
         price: product?.price || "",
-        selectedTags: (product?.tags || []).map((tag) => tag.tagId),
+        selectedTags: product?.tags || [],
       });
     }
   }, [product]);
@@ -149,7 +152,9 @@ function Products() {
     subImagesValue.forEach((image, index) => {
       formData.append(`subImages`, image);
     });
-    values.selectedTags.forEach((tag) => [formData.append(`tagIds`, tag)]);
+    values.selectedTags.forEach((tag) => [
+      formData.append(`tagIds`, tag.tagId),
+    ]);
 
     console.log("main Image", formData.get("mainImage"));
     console.log("SubImages", formData.getAll("subImages"));
@@ -176,7 +181,6 @@ function Products() {
         {(formikProps) => (
           <form onSubmit={formikProps.handleSubmit}>
             <TextField
-              size="small"
               fullWidth
               margin="normal"
               id="name"
@@ -192,7 +196,6 @@ function Products() {
               helperText={formikProps.touched.name && formikProps.errors.name}
             />
             <TextField
-              size="small"
               fullWidth
               margin="normal"
               id="description"
@@ -212,7 +215,6 @@ function Products() {
               }
             />
             <TextField
-              size="small"
               fullWidth
               margin="normal"
               id="price"
@@ -229,38 +231,52 @@ function Products() {
             />
 
             <FormControl fullWidth margin="normal">
-              <InputLabel id="selected-tags-label">Tags</InputLabel>
-              <Select
-                size="small"
-                labelId="selected-tags-label"
-                id="selected-tags"
-                label="Tags"
-                name="selectedTags"
+              <Autocomplete
                 multiple
+                id="selected-tags"
+                options={tags || []}
+                getOptionLabel={(tag) => tag.name}
                 value={formikProps.values?.selectedTags || []}
-                onChange={formikProps.handleChange}
-                onBlur={formikProps.handleBlur}
-                error={
-                  formikProps.touched.selectedTags &&
-                  Boolean(formikProps.errors.selectedTags)
-                }
-                renderValue={(selected) => selected.join(", ")}>
-                {tags &&
-                  tags.map((tag) => (
-                    <MenuItem key={tag.tagId} value={tag.tagId}>
-                      {tag.name}
-                    </MenuItem>
-                  ))}
-              </Select>
+                onChange={(event, newValue) => {
+                  formikProps.setFieldValue("selectedTags", newValue);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    label="Tags"
+                    error={
+                      formikProps.touched.selectedTags &&
+                      Boolean(formikProps.errors.selectedTags)
+                    }
+                    helperText={
+                      formikProps.touched.selectedTags &&
+                      formikProps.errors.selectedTags
+                    }
+                    inputProps={{
+                      ...params.inputProps,
+                      onKeyDown: (event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          const newInputValue = event.target.value.trim();
+                          if (newInputValue) {
+                            addTags({ name: [newInputValue] });
+                            event.target.value = "";
+                          }
+                        }
+                      },
+                    }}
+                  />
+                )}
+              />
             </FormControl>
 
             <Box className="flex gap-2 w-full mt-3">
               <Box
-                className="w-1/3"
+                className="w-1/3 flex flex-col min-h-[56px]"
                 sx={{
                   border: "1px solid #ccc",
                   borderRadius: "4px",
-                  padding: "8px",
                 }}>
                 <Files
                   className="files-dropzone"
@@ -269,19 +285,19 @@ function Products() {
                   maxFileSize={10000000}
                   minFileSize={0}
                   clickable>
-                  <div className="cursor-pointer">
-                    click to upload main image
+                  <div className="cursor-pointer mt-[7px] text-[#666666] p-2 flex gap-2 items-center">
+                    <UploadFile /> Main image
                   </div>
                 </Files>
 
                 {mainImagePreview && (
-                  <Box className="w-fit mt-4 relative">
+                  <Box className="w-fit px-3 py-1 relative">
                     <img
                       src={mainImagePreview}
                       alt="Main Image Preview"
                       style={{
-                        width: "70px",
-                        height: "70px",
+                        width: "100px",
+                        height: "100px",
                         objectFit: "cover",
                       }}
                     />
@@ -293,11 +309,10 @@ function Products() {
                 )}
               </Box>
               <Box
-                className="w-2/3"
+                className="w-2/3 flex flex-col min-h-[56px] justify-center"
                 sx={{
                   border: "1px solid #ccc",
                   borderRadius: "4px",
-                  padding: "8px",
                 }}>
                 <Files
                   className="files-dropzone"
@@ -306,19 +321,19 @@ function Products() {
                   maxFileSize={10000000}
                   minFileSize={0}
                   clickable>
-                  <div className="cursor-pointer">
-                    click to upload main image
+                  <div className="cursor-pointer text-[#666666] p-2 mt-[7px] flex gap-2 items-center">
+                    <UploadFile /> Sub images
                   </div>
                 </Files>
-                <Box className="flex gap-2 mt-4 flex-wrap">
+                <Box className="flex px-3 py-1  gap-2  flex-wrap">
                   {subImagesPreview?.map((preview, index) => (
                     <Box key={index} position="relative">
                       <img
                         src={productId ? preview.imagePath : preview}
                         alt={`Sub Image Preview ${index}`}
                         style={{
-                          width: "70px",
-                          height: "70px",
+                          width: "100px",
+                          height: "100px",
                           objectFit: "cover",
                         }}
                       />
@@ -336,7 +351,7 @@ function Products() {
             </Box>
 
             <Button
-              className="w-full mt-3"
+              className="w-full mt-5"
               type="submit"
               variant="contained"
               color="primary">

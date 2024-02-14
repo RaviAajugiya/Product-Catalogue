@@ -12,22 +12,32 @@
         }
 
         .wishlist-item {
+            display: inline-block;
+            width: 30%; /* Adjust the width as needed */
+            vertical-align: top;
+            margin-right: 2%; /* Adjust the margin between items */
             margin-bottom: 20px;
+            border: 1px solid #ccc; /* Add borders for better separation */
+            padding: 10px;
+            box-sizing: border-box;
         }
+
+            .wishlist-item img {
+                width: 100%; /* Set the image width to fill the container */
+                height: auto; /* Maintain aspect ratio */
+                display: block;
+                margin-bottom: 10px;
+                object-fit: cover; /* Ensure the image covers the container */
+            }
 
             .wishlist-item h2 {
                 color: #333;
-                font-size: 20px;
+                font-size: 16px;
+                margin-top: 0;
             }
 
             .wishlist-item p {
                 margin: 5px 0;
-            }
-
-            .wishlist-item img {
-                max-width: 200px;
-                max-height: 200px;
-                margin-top: 10px;
             }
 
         hr {
@@ -39,6 +49,8 @@
 </head>
 <body>
     <h1>Wishlist</h1>
-    {{WishlistItems}}
+    <div class="wishlist-items">
+        {{WishlistItems}}
+    </div>
 </body>
 </html>

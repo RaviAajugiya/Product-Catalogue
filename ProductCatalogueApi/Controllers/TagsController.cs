@@ -10,7 +10,6 @@ using ProductCatalogue.Models;
 
 namespace ProductCatalogue.Controllers
 {
-    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class TagsController : ControllerBase
@@ -38,7 +37,7 @@ namespace ProductCatalogue.Controllers
             return tags;
         }
 
-        //Add multiple tags in form of array
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] TagAddDTO tags)
         {
@@ -60,6 +59,7 @@ namespace ProductCatalogue.Controllers
             return Ok(new Response { Status = "Success", Message = "Tags added successfully" });
         }
 
+        [Authorize(Roles = "Admin")]
 
         [HttpPost("AssignTags/{id}")]
         public async Task<ActionResult> AssignTags(int id, [FromBody] List<int> tagIds)

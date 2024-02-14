@@ -5,7 +5,7 @@ export const tagsApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "https://localhost:44364/api/tags/",
     prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth.userData.token;
+      const token = getState().auth?.userData?.token;
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
