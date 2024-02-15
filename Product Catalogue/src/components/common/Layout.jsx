@@ -3,7 +3,6 @@ import { useLocation } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 import Header from "../Header/Header";
 import { URL } from "../config/URLHelper";
-import Footer from "../footer/Footer";
 
 function Layout() {
   const location = useLocation();

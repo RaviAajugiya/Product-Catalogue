@@ -11,10 +11,20 @@ import {
 import ProductCard from "../common/ProductCard";
 import { URL } from "../config/URLHelper";
 import { useGetPdfMutation } from "../../redux/api/pdfApi";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 export default function Wishlist() {
   const { data: wishlist } = useGetWishlistProductQuery();
-  const [getPdf, { isLoading }] = useGetPdfMutation();
+  const [getPdf, { isLoading, isSuccess, isError }] = useGetPdfMutation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("PDF generated successfully!");
+    }
+  }, [isSuccess, isError]);
 
   return (
     <Container>
@@ -26,7 +36,7 @@ export default function Wishlist() {
           sx={{ textTransform: "none" }}>
           Print PDF
           {isLoading ? (
-            <CircularProgress className="ml-2" size={20} color="inherit" />
+            <CircularProgress className="ml-3" size={15} color="inherit" />
           ) : null}
         </Button>
       </div>
@@ -53,7 +63,7 @@ export default function Wishlist() {
               variant="contained"
               sx={{ textTransform: "none" }}
               color="primary"
-              onClick={() => Navigate(URL.HOME)}>
+              onClick={() => navigate(URL.HOME)}>
               Add here
             </Button>
           </Box>

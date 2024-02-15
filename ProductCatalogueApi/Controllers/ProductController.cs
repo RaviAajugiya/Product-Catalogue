@@ -38,10 +38,10 @@ namespace ProductCatalogue.Controllers
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> Get(
-     [FromQuery] List<int>? filter,
-     [FromQuery] int? minPrice,
-     [FromQuery] int? maxPrice,
-     [FromQuery] string? search)
+             [FromQuery] List<int>? filter,
+             [FromQuery] int? minPrice,
+             [FromQuery] int? maxPrice,
+             [FromQuery] string? search)
         {
             IQueryable<Product> query = context.Product.Include(p => p.ProductTags);
 
@@ -83,7 +83,6 @@ namespace ProductCatalogue.Controllers
                                     {
                                         SubImageId = subImg.SubImageId,
                                         ImagePath = subImg.ImagePath
-
                                     })
                                     .ToList(),
                     Tags = context.ProductTag
@@ -109,10 +108,6 @@ namespace ProductCatalogue.Controllers
         }
 
 
-
-
-
-
         [HttpGet("{productId}")]
         public async Task<ActionResult<ProductDTO>> GetProductById(int productId)
         {
@@ -124,13 +119,12 @@ namespace ProductCatalogue.Controllers
 
             if (product == null)
             {
-                return NotFound(); // Return 404 Not Found if the product is not found
+                return NotFound();
             }
 
-            // Map the retrieved product entity to a DTO
             var productDTO = mapper.Map<ProductDTO>(product);
 
-            return Ok(productDTO); // Return 200 OK with the product DTO
+            return Ok(productDTO);
         }
 
 
@@ -158,6 +152,7 @@ namespace ProductCatalogue.Controllers
             return subImageDTOs;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{productId}")]
         public async Task<ActionResult> Delete(int productId)
         {

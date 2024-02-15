@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
@@ -20,15 +19,21 @@ import { useDeleteProductMutation } from "../../redux/api/productApi";
 import { URL } from "../config/URLHelper";
 import { useNavigate } from "react-router-dom";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { toast } from "react-toastify";
+import { useConfirm } from "material-ui-confirm";
+
 
 function ProductCard({ product }) {
+  const confirm = useConfirm();
+
   const [open, setOpen] = useState(false);
   const [isHover, setIsHover] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isProductWishlist, setIsProductWishlist] = useState(false);
 
   const { data: Wishlist } = useGetWishlistProductQuery();
-  const [deleteWishlist] = useDeleteWishlistMutation();
+  const [deleteWishlist, { isSuccess: deleteWishlistSuccess }] =
+    useDeleteWishlistMutation();
 
   const navigate = useNavigate();
   const [mainImage, setMainImage] = useState(
@@ -36,8 +41,7 @@ function ProductCard({ product }) {
   );
 
   const [deleteProduct] = useDeleteProductMutation();
-
-  const [addToWishlist] = useAddToWishlistMutation();
+  const [addToWishlist, { isSuccess: addSuccess }] = useAddToWishlistMutation();
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -73,8 +77,9 @@ function ProductCard({ product }) {
   }, []);
 
   return (
-    <Box className='min-w-[140px] relative' >
+    <Box className="min-w-[140px] relative">
       <CardActionArea
+      tra
         sx={{ border: `0.5px solid ${theme.palette.primary.border}` }}
         className="relative"
         onClick={handleOpen}
@@ -96,7 +101,9 @@ function ProductCard({ product }) {
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsProductWishlist(false);
-                      deleteWishlist(product.productId);
+                      deleteWishlist(product.productId).then(() =>
+                        toast.success("Product deleted from wishlist")
+                      );
                     }}
                   />
                 </Tooltip>
@@ -106,7 +113,9 @@ function ProductCard({ product }) {
                     className="hover:scale-110"
                     onClick={(e) => {
                       e.stopPropagation();
-                      addToWishlist(product.productId);
+                      addToWishlist(product.productId).then(() =>
+                        toast.success("Product added to wishlist")
+                      );
                     }}
                   />
                 </Tooltip>
@@ -118,8 +127,7 @@ function ProductCard({ product }) {
                   <IconButton
                     className="bg-white"
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent event propagation
-                      // addToWishlist(product.productId);
+                      e.stopPropagation();
                       navigate(`${URL.ADMIN}?id=${product.productId}`);
                     }}>
                     <Edit className="hover:scale-110" />
@@ -129,8 +137,14 @@ function ProductCard({ product }) {
                   <IconButton
                     className="bg-white"
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent event propagation
-                      deleteProduct(product.productId);
+                      e.stopPropagation();
+                      confirm({
+                        description: `Delete "${product.name}"? This action cannot be undone.`
+                      }).then(() => {
+                        localStorage.removeItem("userData");
+                        deleteProduct(product.productId);
+                      });
+                      
                     }}>
                     <Delete className="hover:scale-110" />
                   </IconButton>

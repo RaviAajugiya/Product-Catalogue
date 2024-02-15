@@ -27,17 +27,17 @@ const theme = createTheme({
 
   palette: {
     primary: {
-      main: "#131118", // primary color
+      main: "#131118", 
       white: "#ffffff",
       border: "#A4A1AA",
     },
     secondary: {
-      main: "#a4a1aa", // secondary color for text
+      main: "#a4a1aa", 
     },
   },
   typography: {
     fontFamily: [
-      "Popins", // Specify Popin as the default font family
+      "Popins", 
       "-apple-system",
       "BlinkMacSystemFont",
       '"Segoe UI"',

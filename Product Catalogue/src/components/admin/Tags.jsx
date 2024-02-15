@@ -11,14 +11,20 @@ import {
 import { Formik } from "formik";
 import DynamicForm from "../common/form/DynamicForm";
 import * as Yup from "yup";
-import { useAddTagsMutation, useGetTagsQuery } from "../../redux/api/tagsApi";
-import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  useAddTagsMutation,
+  useDeleteTagMutation,
+  useGetTagsQuery,
+} from "../../redux/api/tagsApi";
 import { Cancel } from "@mui/icons-material";
+import { toast } from "react-toastify";
+import { useConfirm } from "material-ui-confirm";
 
 function Tags() {
   const [addTags] = useAddTagsMutation();
+  const [deleteTag] = useDeleteTagMutation();
   const { data: tags } = useGetTagsQuery();
-  // console.log(tags);
+  const confirm = useConfirm();
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Tag name is required"),
@@ -39,10 +45,6 @@ function Tags() {
     addTags({
       name: tags,
     });
-  };
-
-  const handleDeleteTag = (tag) => {
-    // console.log("Delete tag:", tag);
   };
 
   return (
@@ -73,6 +75,7 @@ function Tags() {
                   touched={formikProps.touched}
                 />
                 <Button
+                  sx={{ textTransform: "none" }}
                   type="submit"
                   className="mt-2"
                   variant="contained"
@@ -91,7 +94,15 @@ function Tags() {
               className="w-fit"
               key={tag.tadId}
               label={tag.name}
-              onDelete={() => handleDeleteTag(tag)}
+              onDelete={() => {
+                confirm({
+                  description: `Delete "${tag.name}"? This action cannot be undone.`,
+                }).then(() => {
+                  deleteTag(tag.tagId).then(() =>
+                    toast.success(`${tag.name} deleted successfully`)
+                  );
+                });
+              }}
               deleteIcon={<Cancel className="" />}
             />
           ))}

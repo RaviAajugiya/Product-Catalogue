@@ -22,11 +22,20 @@ function Login() {
   const page = queryParams.get("page") || "login";
 
   const [isLoginPage, setIsLoginPage] = useState(page === "login");
-
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [authLogin, { data: loginData }] = useLoginMutation();
-  const [authRegister, { data: registerData }] = useRegisterMutation();
+  const [
+    authLogin,
+    { data: loginData, isSuccess: loginSuccess, isError: loginError },
+  ] = useLoginMutation();
+  const [authRegister, { data: registerData, isSuccess: registerSuccess }] =
+    useRegisterMutation();
+
+  useEffect(() => {
+    loginSuccess ? toast.success("User logged in successfully") : null;
+    registerSuccess ? toast.success("Registration successful!") : null;
+    loginError ? toast.error("Invalid Credentials") : null;
+  }, [loginSuccess, registerSuccess, loginError]);
 
   useEffect(() => {
     if (loginData) {
@@ -119,6 +128,7 @@ function Login() {
                   <Typography color="secondary">Forgot password?</Typography>
                 </Box>
                 <Button
+                  sx={{ textTransform: "none" }}
                   type="submit"
                   className="mt-5"
                   variant="contained"

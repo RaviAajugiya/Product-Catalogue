@@ -8,6 +8,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  useScrollTrigger,
 } from "@mui/material";
 import React from "react";
 import AppBar from "@mui/material/AppBar";
@@ -28,8 +29,32 @@ import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { useConfirm } from "material-ui-confirm";
+
+function HideOnScroll(props) {
+  const { children, window } = props;
+  const trigger = useScrollTrigger({
+    target: window ? window() : undefined,
+  });
+
+  return (
+    <Slide appear={false} direction="down" in={!trigger}>
+      {children}
+    </Slide>
+  );
+}
+
+HideOnScroll.propTypes = {
+  children: PropTypes.element.isRequired,
+  /**
+   * Injected by the documentation to work in an iframe.
+   * You won't need it on your project.
+   */
+  window: PropTypes.func,
+};
 
 function Header() {
+  const confirm = useConfirm();
   const [userName, setUserName] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const localData = localStorage.getItem("userData");
@@ -49,9 +74,7 @@ function Header() {
   useEffect(() => {
     if (localData) {
       const token = JSON.parse(localData).token;
-      // console.log(token);
       const decodedToken = jwtDecode(token);
-      // console.log(decodedToken);
 
       const username =
         decodedToken[
@@ -68,118 +91,126 @@ function Header() {
   }, []);
 
   return (
-    <AppBar position="static" className="bg-white ">
-      <Box sx={{ flexGrow: 1 }}>
-        <Container maxWidth="lg" disableGutters>
-          <Toolbar className="flex justify-between items-center">
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="open drawer">
-              <Link to={URL.HOME}>
-                <img src={appLogo} alt="" className="w-20 mt-2" />
-              </Link>
-            </IconButton>
-            <Box className="hidden md:block">
-              <Button
-                sx={{ textTransform: "none" }}
-                onClick={() => navigate(URL.HOME)}>
-                Home
-              </Button>
-              <Button
-                sx={{ textTransform: "none" }}
-                onClick={() => navigate(URL.WISHLIST)}>
-                WishList
-              </Button>
-              {isAdmin ? (
-                <>
+    <HideOnScroll {...props}>
+      <AppBar position="static" className="bg-white ">
+        <Box sx={{ flexGrow: 1 }}>
+          <Container maxWidth="lg" disableGutters>
+            <Toolbar className="flex justify-between items-center">
+              <IconButton
+                size="large"
+                edge="start"
+                color="inherit"
+                aria-label="open drawer">
+                <Link to={URL.HOME}>
+                  <img src={appLogo} alt="" className="w-20 mt-2" />
+                </Link>
+              </IconButton>
+              <Box className="hidden md:block">
+                <Button
+                  sx={{ textTransform: "none" }}
+                  onClick={() => navigate(URL.HOME)}>
+                  Home
+                </Button>
+                <Button
+                  sx={{ textTransform: "none" }}
+                  onClick={() => navigate(URL.WISHLIST)}>
+                  WishList
+                </Button>
+                {isAdmin ? (
+                  <>
+                    <Button
+                      sx={{ textTransform: "none" }}
+                      onClick={() => navigate(URL.ADMIN)}>
+                      Manage Product
+                    </Button>
+                  </>
+                ) : null}
+              </Box>
+              <Box className="hidden md:flex gap-3 items-center text-black">
+                <Typography>
+                  {userData ? `Welcome ${userName}!` : null}
+                </Typography>
+                {userData ? (
                   <Button
+                    startIcon={<LogoutIcon />}
                     sx={{ textTransform: "none" }}
-                    onClick={() => navigate(URL.ADMIN)}>
-                    Manage Product
-                  </Button>
-                </>
-              ) : null}
-            </Box>
-            <Box className="hidden md:flex gap-3 items-center text-black">
-              <Typography>Welcome {userName}!</Typography>
-              {userData ? (
-                <Button
-                  startIcon={<LogoutIcon />}
-                  sx={{ textTransform: "none" }}
-                  variant="contained"
-                  onClick={() => {
-                    localStorage.removeItem("userData");
-                    dispatch(logout());
-                    navigate(URL.HOME);
-                    window.location.reload();
-                  }}>
-                  logout
-                </Button>
-              ) : (
-                <Button
-                  startIcon={<LoginIcon />}
-                  sx={{ textTransform: "none" }}
-                  variant="contained"
-                  onClick={() => {
-                    navigate(URL.AUTH);
-                  }}>
-                  Login
-                </Button>
-              )}
-            </Box>
-            <Avatar className="md:hidden" onClick={toggleDrawer}>
-              A
-            </Avatar>
-            <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer}>
-              <Box sx={{ width: 250 }} onClick={toggleDrawer}>
-                <List>
-                  <ListItem onClick={() => navigate(URL.HOME)}>
-                    <ListItemText primary="Home" />
-                  </ListItem>
-                  <Divider />
-                  <ListItem onClick={() => navigate(URL.WISHLIST)}>
-                    <ListItemText primary="Wishlist" />
-                  </ListItem>
-                  <Divider />
-                  {isAdmin ? (
-                    <ListItem onClick={() => navigate(URL.ADMIN)}>
-                      <ListItemText primary="Manage product" />
-                    </ListItem>
-                  ) : null}
-                  <Divider />
-                  {userData ? (
-                    <ListItem
-                      onClick={() => {
+                    variant="contained"
+                    onClick={() => {
+                      confirm({
+                        description: "You will be logout from application",
+                      }).then(() => {
                         localStorage.removeItem("userData");
                         dispatch(logout());
                         navigate(URL.HOME);
                         window.location.reload();
-                      }}>
-                      <ListItemIcon>
-                        <LogoutIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Logout" />
-                    </ListItem>
-                  ) : (
-                    <ListItem
-                      onClick={() => {
-                        navigate(URL.AUTH);
-                      }}>
-                      <ListItemIcon>
-                        <LoginIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Login" />
-                    </ListItem>
-                  )}
-                </List>
+                      });
+                    }}>
+                    logout
+                  </Button>
+                ) : (
+                  <Button
+                    startIcon={<LoginIcon />}
+                    sx={{ textTransform: "none" }}
+                    variant="contained"
+                    onClick={() => {
+                      navigate(URL.AUTH);
+                    }}>
+                    Login
+                  </Button>
+                )}
               </Box>
-            </Drawer>
-          </Toolbar>
-        </Container>
-      </Box>
-    </AppBar>
+              <Avatar className="md:hidden" onClick={toggleDrawer}>
+                A
+              </Avatar>
+              <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer}>
+                <Box sx={{ width: 250 }} onClick={toggleDrawer}>
+                  <List>
+                    <ListItem onClick={() => navigate(URL.HOME)}>
+                      <ListItemText primary="Home" />
+                    </ListItem>
+                    <Divider />
+                    <ListItem onClick={() => navigate(URL.WISHLIST)}>
+                      <ListItemText primary="Wishlist" />
+                    </ListItem>
+                    <Divider />
+                    {isAdmin ? (
+                      <ListItem onClick={() => navigate(URL.ADMIN)}>
+                        <ListItemText primary="Manage product" />
+                      </ListItem>
+                    ) : null}
+                    <Divider />
+                    {userData ? (
+                      <ListItem
+                        onClick={() => {
+                          localStorage.removeItem("userData");
+                          dispatch(logout());
+                          navigate(URL.HOME);
+                          window.location.reload();
+                        }}>
+                        <ListItemIcon>
+                          <LogoutIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Logout" />
+                      </ListItem>
+                    ) : (
+                      <ListItem
+                        onClick={() => {
+                          navigate(URL.AUTH);
+                        }}>
+                        <ListItemIcon>
+                          <LoginIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Login" />
+                      </ListItem>
+                    )}
+                  </List>
+                </Box>
+              </Drawer>
+            </Toolbar>
+          </Container>
+        </Box>
+      </AppBar>
+    </HideOnScroll>
   );
 }
 

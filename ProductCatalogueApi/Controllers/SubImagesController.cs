@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +46,7 @@ namespace ProductCatalogue.Controllers
             return subImageDTOs;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{imageId}")]
         public async Task<ActionResult> Delete(int imageId)
         {
@@ -59,6 +61,7 @@ namespace ProductCatalogue.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("{productId}")]
         public async Task<ActionResult> Post(int productId, [FromForm] SubImagesCreateDTO subImagesCreateDTO)
         {

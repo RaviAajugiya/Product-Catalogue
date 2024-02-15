@@ -29,8 +29,15 @@ import {
   useGetImagesByProductIdQuery,
 } from "../../redux/api/subImageApi";
 import { UploadFile } from "@mui/icons-material";
+import { toast } from "react-toastify";
+import { useConfirm } from "material-ui-confirm";
+import { URL } from "../config/URLHelper";
+import { useNavigate } from "react-router-dom";
 
 function Products() {
+  const confirm = useConfirm();
+  const navigate = useNavigate();
+
   const [addProduct] = useAddProductMutation();
   const [editProduct] = useEditProductMutation();
   const [deleteImage] = useDeleteImageMutation();
@@ -141,7 +148,7 @@ function Products() {
     );
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     console.log(values);
     const formData = new FormData();
     formData.append("name", values.name);
@@ -160,8 +167,18 @@ function Products() {
     console.log("SubImages", formData.getAll("subImages"));
 
     productId
-      ? editProduct({ id: productId, data: formData })
-      : addProduct(formData);
+      ? editProduct({ id: productId, data: formData }).then(() => {
+          toast.success("Product edited successfully");
+          navigate(URL.HOME);
+        })
+      : addProduct(formData).then(() => {
+          toast.success("Product added successfully");
+        });
+    resetForm();
+    setMainImageValue(null);
+    setSubImagesValue([]);
+    setMainImagePreview(null);
+    setSubImagesPreview([]);
   };
 
   return (
@@ -292,19 +309,27 @@ function Products() {
 
                 {mainImagePreview && (
                   <Box className="w-fit px-3 py-1 relative">
-                    <img
-                      src={mainImagePreview}
-                      alt="Main Image Preview"
-                      style={{
-                        width: "100px",
-                        height: "100px",
-                        objectFit: "cover",
-                      }}
-                    />
-                    <Cancel
-                      onClick={handleRemoveMainImage}
-                      className="bg-white rounded-full absolute -top-2 -right-2"
-                    />
+                    <div className="relative">
+                      <img
+                        src={mainImagePreview}
+                        alt="Main Image Preview"
+                        style={{
+                          width: "100px",
+                          height: "100px",
+                          objectFit: "cover",
+                        }}
+                      />
+                      <Cancel
+                        onClick={() => {
+                          confirm({
+                            description: `Delete  This action cannot be undone.`,
+                          }).then(() => {
+                            handleRemoveMainImage();
+                          });
+                        }}
+                        className="bg-white rounded-full absolute -top-2 -right-2"
+                      />
+                    </div>
                   </Box>
                 )}
               </Box>
@@ -339,8 +364,12 @@ function Products() {
                       />
                       <Cancel
                         onClick={() => {
-                          handleRemoveSubImage(index);
-                          deleteImage(preview.subImageId);
+                          confirm({
+                            description: `Delete  This action cannot be undone.`,
+                          }).then(() => {
+                            handleRemoveSubImage(index);
+                            deleteImage(preview.subImageId);
+                          });
                         }}
                         className="bg-white rounded-full absolute -top-2 -right-2"
                       />
@@ -351,6 +380,7 @@ function Products() {
             </Box>
 
             <Button
+              sx={{ textTransform: "none" }}
               className="w-full mt-5"
               type="submit"
               variant="contained"

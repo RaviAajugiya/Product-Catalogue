@@ -22,6 +22,14 @@ export const tagsApi = createApi({
       providesTags: ["Tags"],
     }),
 
+    deleteTag: builder.mutation({
+      query: (id) => ({
+        method: "DELETE",
+        url: `${id}`
+      }),
+      invalidatesTags: ["Tags"],
+    }),
+
     addTags: builder.mutation({
       query: (data) => ({
         method: "POST",
@@ -40,5 +48,5 @@ export const tagsApi = createApi({
   }),
 });
 
-export const { useGetTagsQuery, useAddTagsMutation, useAssignTagsMutation } =
+export const {useDeleteTagMutation, useGetTagsQuery, useAddTagsMutation, useAssignTagsMutation } =
   tagsApi;

@@ -73,7 +73,7 @@ function Home() {
   useEffect(() => {
     console.log(searchParams.getAll("filter"));
     refetch({
-      filter: searchParams.getAll("filter"), // Use map to extract tagIds
+      filter: searchParams.getAll("filter"), 
       minPrice: priceRange[0],
       maxPrice: priceRange[1],
       search: searchText,
@@ -118,7 +118,6 @@ function Home() {
                 <TextField
                   {...params}
                   variant="outlined"
-                  label="Tags"
                   placeholder="Select Tags"
                   fullWidth
                 />
@@ -179,7 +178,7 @@ function Home() {
               if (selectedFilters.length > 0)
                 selectedFilters.forEach((filter) =>
                   params.append("filter", filter.tagId)
-                ); // Use forEach to append each tagId
+                ); 
               if (priceRange[0] !== 0) params.append("minPrice", priceRange[0]);
               if (priceRange[1] !== 100)
                 params.append("maxPrice", priceRange[1]);

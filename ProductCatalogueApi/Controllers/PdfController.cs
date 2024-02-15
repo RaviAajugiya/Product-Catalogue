@@ -55,7 +55,6 @@ namespace ProductCatalogue.Controllers
                 })
                 .ToList();
 
-            // Read HTML template from file
             string htmlTemplatePath = "E:\\React Project\\Product-Catalogue\\ProductCatalogueApi\\Helper\\PdfTemplate.html";
             string htmlTemplate = await System.IO.File.ReadAllTextAsync(htmlTemplatePath);
 
@@ -97,10 +96,6 @@ namespace ProductCatalogue.Controllers
 
             string htmlContent = htmlTemplate.Replace("{{WishlistItems}}", htmlContentBuilder.ToString());
 
-            // At this point, htmlContent should contain the dynamically generated HTML content with wishlist items.
-
-            // Now, proceed with converting the HTML content to PDF using Syncfusion's HtmlToPdfConverter.
-
             HtmlToPdfConverter htmlConverter = new HtmlToPdfConverter();
 
             PdfDocument document = htmlConverter.Convert(htmlContent, "");
@@ -110,11 +105,9 @@ namespace ProductCatalogue.Controllers
             document.Save(stream);
 
             stream.Position = 0;
-
-            return File(stream, "application/pdf", "Wishlist.pdf");
+            var fileStream = new MemoryStream(stream.ToArray());
+            Response.StatusCode = 200;
+            return File(fileStream, "application/pdf", "Wishlist.pdf");
         }
-
-
-
     }
 }

@@ -33,8 +33,22 @@ namespace ProductCatalogue.Controllers
                     Name = tag.Name
                 })
                 .ToListAsync();
-
             return tags;
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var tag = await context.Tag.FindAsync(id);
+
+            if (tag == null)
+            {
+                return NotFound();
+            }
+            context.Tag.Remove(tag);
+            await context.SaveChangesAsync();
+            return NoContent();
         }
 
         [Authorize(Roles = "Admin")]
