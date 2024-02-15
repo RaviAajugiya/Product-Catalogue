@@ -4,6 +4,13 @@ import CloseIcon from "@mui/icons-material/Close";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ReactImageMagnify from "react-image-magnify";
 import theme from "./theme";
+import {
+  useAddToWishlistMutation,
+  useDeleteWishlistMutation,
+  useGetWishlistProductQuery,
+} from "../../redux/api/wishlistApi";
+import { useEffect } from "react";
+import { FavoriteBorder } from "@mui/icons-material";
 
 function ImageZoom({ smallImage, largeImage }) {
   return (
@@ -37,6 +44,19 @@ function ImageZoom({ smallImage, largeImage }) {
 }
 
 function ProductModel({ onClose, product }) {
+  const [isProductWishlist, setIsProductWishlist] = useState(false);
+  const { data: Wishlist } = useGetWishlistProductQuery();
+  const [addToWishlist] = useAddToWishlistMutation();
+  const [deleteWishlist] = useDeleteWishlistMutation();
+
+  useEffect(() => {
+    Wishlist?.forEach((wishlist) => {
+      wishlist.productId === product.productId
+        ? setIsProductWishlist(true)
+        : null;
+    });
+  }, [Wishlist]);
+
   const [mainImage, setMainImage] = useState(
     "../src/assets/images/" + product.mainImage
   );
@@ -74,7 +94,9 @@ function ProductModel({ onClose, product }) {
                     alt="The house from the offer."
                     src={`../src/assets/images/${subImage.imagePath}`}
                     onClick={() =>
-                      handleImageClick(`../src/assets/images/${subImage.imagePath}`)
+                      handleImageClick(
+                        `../src/assets/images/${subImage.imagePath}`
+                      )
                     }
                   />
                 ))}
@@ -87,20 +109,37 @@ function ProductModel({ onClose, product }) {
               {product.name}
             </Typography>
             <Typography className="text-2xl">${product.price}</Typography>
-            <Typography>
-              {product.description}
-            </Typography>
+            <Typography>{product.description}</Typography>
             <Box className="flex flex-wrap gap-2">
               {product.tags.map((tag) => (
                 <Chip key={tag.tagId} label={tag.name} variant="filled" />
               ))}
             </Box>
-            <Button
-              variant="outlined"
-              startIcon={<FavoriteIcon />}
-              className="flex gap-3 py-2 w-max hover:bg-[#131118] hover:text-white">
-              Add to Wishlist
-            </Button>
+
+            {isProductWishlist ? (
+              <Button
+                sx={{ textTransform: "none" }}
+                onClick={() => {
+                  setIsProductWishlist(false);
+                  deleteWishlist(product.productId);
+                }}
+                variant="outlined"
+                startIcon={<FavoriteIcon />}
+                className="flex  py-2 w-max hover:bg-[#131118] hover:text-white">
+                Remove from Wishlist
+              </Button>
+            ) : (
+              <Button
+                sx={{ textTransform: "none" }}
+                onClick={() => {
+                  addToWishlist(product.productId);
+                }}
+                variant="outlined"
+                startIcon={<FavoriteBorder />}
+                className=" flex py-2 w-max hover:bg-[#131118] hover:text-white">
+                Add to Wishlist
+              </Button>
+            )}
           </Box>
         </Box>
       </Container>

@@ -11,6 +11,7 @@ import { useLoginMutation, useRegisterMutation } from "../../redux/api/authApi";
 import { useNavigate } from "react-router-dom";
 import { login } from "../../redux/slice/authSlice";
 import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 
 function Login() {
   const location = useLocation();
@@ -30,7 +31,7 @@ function Login() {
   useEffect(() => {
     if (loginData) {
       localStorage.setItem("userData", JSON.stringify(loginData));
-      dispatch(login(loginData))
+      dispatch(login(loginData));
       navigate("/");
     }
     if (registerData) {

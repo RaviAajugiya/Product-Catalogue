@@ -1,13 +1,20 @@
 import React from "react";
 import { useGetWishlistProductQuery } from "../../redux/api/wishlistApi";
-import { Container, Grid, Typography, Button, Box } from "@mui/material";
+import {
+  Container,
+  Grid,
+  Typography,
+  Button,
+  Box,
+  CircularProgress,
+} from "@mui/material";
 import ProductCard from "../common/ProductCard";
 import { URL } from "../config/URLHelper";
 import { useGetPdfMutation } from "../../redux/api/pdfApi";
 
 export default function Wishlist() {
   const { data: wishlist } = useGetWishlistProductQuery();
-  const [getPdf] = useGetPdfMutation();
+  const [getPdf, { isLoading }] = useGetPdfMutation();
 
   return (
     <Container>
@@ -18,6 +25,9 @@ export default function Wishlist() {
           onClick={() => getPdf()}
           sx={{ textTransform: "none" }}>
           Print PDF
+          {isLoading ? (
+            <CircularProgress className="ml-2" size={20} color="inherit" />
+          ) : null}
         </Button>
       </div>
       <Grid className="" container spacing={2}>

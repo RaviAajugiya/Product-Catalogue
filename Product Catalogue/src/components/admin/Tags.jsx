@@ -46,7 +46,7 @@ function Tags() {
   };
 
   return (
-    <Box className="w-1/3">
+    <Box className="w-full md:w-[32%] mb-5">
       <Box className="w-fit m-auto">
         <Typography
           borderBottom={1}
@@ -91,8 +91,8 @@ function Tags() {
               className="w-fit"
               key={tag.tadId}
               label={tag.name}
-              onDelete={() => handleDeleteTag(tag)} 
-              deleteIcon={<Cancel className=""/>}
+              onDelete={() => handleDeleteTag(tag)}
+              deleteIcon={<Cancel className="" />}
             />
           ))}
         </Box>

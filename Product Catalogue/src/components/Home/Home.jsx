@@ -25,6 +25,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import theme from "../common/theme";
 import { useGetTagsQuery } from "../../redux/api/tagsApi";
+import { toast } from "react-toastify";
 
 function Home() {
   const [filteredProducts, setFilteredProducts] = useState([]);

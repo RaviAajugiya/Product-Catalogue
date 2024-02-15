@@ -165,7 +165,7 @@ function Products() {
   };
 
   return (
-    <Box className="w-2/3">
+    <Box className="w-full md:w-[60%]">
       <Typography
         borderBottom={1}
         borderColor="grey.500"

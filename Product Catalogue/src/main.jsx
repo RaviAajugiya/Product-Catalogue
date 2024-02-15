@@ -19,6 +19,8 @@ import Wishlist from "./components/WishList/Wishlist.jsx";
 import Tags from "./components/admin/Tags.jsx";
 import Procucts from "./components/admin/Procucts.jsx";
 import Admin from "./components/admin/Admin.jsx";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -36,6 +38,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
         <RouterProvider router={router} />
+        <ToastContainer />
       </ThemeProvider>
     </StyledEngineProvider>
   </Provider>
