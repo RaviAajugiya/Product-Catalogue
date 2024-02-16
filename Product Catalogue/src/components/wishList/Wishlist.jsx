@@ -28,18 +28,21 @@ export default function Wishlist() {
 
   return (
     <Container>
-      <div className="text-right">
-        <Button
-          variant="outlined"
-          className="my-4 mb-4  w-fit m-auto"
-          onClick={() => getPdf()}
-          sx={{ textTransform: "none" }}>
-          Print PDF
-          {isLoading ? (
-            <CircularProgress className="ml-3" size={15} color="inherit" />
-          ) : null}
-        </Button>
-      </div>
+      {wishlist && wishlist.length > 0 ? (
+        <div className="text-right">
+          <Button
+            variant="outlined"
+            className="my-4 mb-4  w-fit m-auto"
+            onClick={() => getPdf()}
+            sx={{ textTransform: "none" }}>
+            Print PDF
+            {isLoading ? (
+              <CircularProgress className="ml-3" size={15} color="inherit" />
+            ) : null}
+          </Button>
+        </div>
+      ) : null}
+
       <Grid className="" container spacing={2}>
         {wishlist && wishlist.length > 0 ? (
           wishlist.map((product) => (
@@ -56,7 +59,7 @@ export default function Wishlist() {
           ))
         ) : (
           <Box className="text-center m-auto h-full mt-10">
-            <Typography variant="h6" align="center" gutterBottom>
+            <Typography variant="h5" align="center" gutterBottom>
               Your wishlist is empty. Start adding products you love!
             </Typography>
             <Button

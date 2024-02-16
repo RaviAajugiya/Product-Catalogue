@@ -4,6 +4,7 @@ import { Outlet } from "react-router-dom";
 import Header from "../Header/Header";
 import { URL } from "../config/URLHelper";
 
+
 function Layout() {
   const location = useLocation();
   const isAuth = location.pathname != URL.AUTH;

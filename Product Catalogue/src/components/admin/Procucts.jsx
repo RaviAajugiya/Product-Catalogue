@@ -122,9 +122,17 @@ function Products() {
     });
     addImage({ id: productId, data: formData });
 
-    const newSubImages = Array.from(files);
+    // Filter out duplicates from new sub-images
+    const uniqueNewSubImages = files.filter(
+      (file) => !subImagesValue.includes(file)
+    );
+
+    // Concatenate new sub-images with existing ones
+    const newSubImages = subImagesValue.concat(Array.from(uniqueNewSubImages));
     setSubImagesValue(newSubImages);
-    const readers = newSubImages.map((file) => {
+
+    // Display previews of unique new sub-images
+    const readers = uniqueNewSubImages.map((file) => {
       const reader = new FileReader();
       reader.onload = () => {
         setSubImagesPreview((prevPreviews) => [...prevPreviews, reader.result]);

@@ -34,7 +34,7 @@ function Home() {
   const [initialSyncDone, setInitialSyncDone] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: tags } = useGetTagsQuery();
-  const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [priceRange, setPriceRange] = useState([0, 0]);
   const { data: products, refetch } = useGetProductQuery({
     filter: selectedFilters.map((filter) => filter.tagId),
     minPrice: priceRange[0],
@@ -43,7 +43,10 @@ function Home() {
   });
 
   useEffect(() => {
-    setFilteredProducts(products?.data);
+    if (products?.data) {
+      const reversedProducts = [...products.data].reverse();
+      setFilteredProducts(reversedProducts);
+    }
   }, [products]);
 
   useEffect(() => {
@@ -64,7 +67,7 @@ function Home() {
       }
 
       const minPrice = parseInt(params.get("minPrice")) || 0;
-      const maxPrice = parseInt(params.get("maxPrice")) || 1000;
+      const maxPrice = parseInt(params.get("maxPrice")) || 4000;
       setPriceRange([minPrice, maxPrice]);
       setInitialSyncDone(true);
     }
@@ -73,7 +76,7 @@ function Home() {
   useEffect(() => {
     console.log(searchParams.getAll("filter"));
     refetch({
-      filter: searchParams.getAll("filter"), 
+      filter: searchParams.getAll("filter"),
       minPrice: priceRange[0],
       maxPrice: priceRange[1],
       search: searchText,
@@ -178,7 +181,7 @@ function Home() {
               if (selectedFilters.length > 0)
                 selectedFilters.forEach((filter) =>
                   params.append("filter", filter.tagId)
-                ); 
+                );
               if (priceRange[0] !== 0) params.append("minPrice", priceRange[0]);
               if (priceRange[1] !== 100)
                 params.append("maxPrice", priceRange[1]);
@@ -189,30 +192,28 @@ function Home() {
         </Box>
       </Box>
 
-      {/* <Box
-        className="pt-2"
-        sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-        {selectedFilters?.map((filter) => (
-          <Chip
-            key={filter.tagId}
-            label={filter.name}
-            onDelete={() => {
-              setSelectedFilters((prevFilters) =>
-                prevFilters.filter((item) => item.tagId !== filter.tagId)
-              );
-            }}
-            variant="outlined"
-            sx={{ marginRight: 1, marginBottom: 1, width: 100 }}
-          />
-        ))}
-      </Box> */}
-
-      <Grid container spacing={2} className="mt-1">
-        {filteredProducts?.map((product) => (
-          <Grid item xs={6} sm={4} md={4} lg={3} xl={3} key={product.productId}>
-            <ProductCard product={product} />
-          </Grid>
-        ))}
+      <Grid container spacing={2} className="mt-5">
+        {filteredProducts?.length === 0 ? (
+          <Typography
+            className="text-center w-fit m-auto"
+            variant="h6"
+            sx={{ mt: 2 }}>
+            No products found.
+          </Typography>
+        ) : (
+          filteredProducts?.map((product) => (
+            <Grid
+              item
+              xs={6}
+              sm={4}
+              md={4}
+              lg={3}
+              xl={3}
+              key={product.productId}>
+              <ProductCard product={product} />
+            </Grid>
+          ))
+        )}
       </Grid>
     </Container>
   );

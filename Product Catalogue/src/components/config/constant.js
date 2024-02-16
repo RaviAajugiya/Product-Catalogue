@@ -51,7 +51,13 @@ export const registerForm = {
 
   registerValidationSchema: Yup.object().shape({
     username: Yup.string().required("Username is required"),
-    password: Yup.string().required("Password is required"),
+    password: Yup.string()
+      .required("Password is required")
+      .min(6, "Password must be at least 6 characters")
+      .matches(
+        /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.*\s).*$/,
+        "Password must include at least one digit, one lowercase letter, one uppercase letter, and one special character"
+      ),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
       .required("Confirm Password is required"),

@@ -31,11 +31,11 @@ function Login() {
   const [authRegister, { data: registerData, isSuccess: registerSuccess }] =
     useRegisterMutation();
 
-  useEffect(() => {
-    loginSuccess ? toast.success("User logged in successfully") : null;
-    registerSuccess ? toast.success("Registration successful!") : null;
-    loginError ? toast.error("Invalid Credentials") : null;
-  }, [loginSuccess, registerSuccess, loginError]);
+  // useEffect(() => {
+  //   loginSuccess ? toast.success("User logged in successfully") : null;
+  //   registerSuccess ? toast.success("User logged in successfully") : null;
+  //   loginError ? toast.error("Invalid Credentials") : null;
+  // }, [loginSuccess, registerSuccess, loginError]);
 
   useEffect(() => {
     if (loginData) {
@@ -58,7 +58,21 @@ function Login() {
 
   const handleSubmit = (values) => {
     console.log(values);
-    isLoginPage ? authLogin(values) : authRegister(values);
+    if (isLoginPage) {
+      authLogin(values).then((res) => {
+        console.log(res);
+        res.error
+          ? toast.error("Invalid username or password")
+          : toast.success("User logged in successfully");
+      });
+    } else {
+      authRegister(values).then((res) => {
+        console.log(res);
+        res.error.data.message
+          ? toast.error(res.error.data.message)
+          : toast.success("User registered in successfully");
+      });
+    }
   };
 
   const validationSchema = isLoginPage

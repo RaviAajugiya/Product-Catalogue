@@ -22,7 +22,6 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import { toast } from "react-toastify";
 import { useConfirm } from "material-ui-confirm";
 
-
 function ProductCard({ product }) {
   const confirm = useConfirm();
 
@@ -79,7 +78,7 @@ function ProductCard({ product }) {
   return (
     <Box className="min-w-[140px] relative">
       <CardActionArea
-      tra
+        tra
         sx={{ border: `0.5px solid ${theme.palette.primary.border}` }}
         className="relative"
         onClick={handleOpen}
@@ -113,9 +112,12 @@ function ProductCard({ product }) {
                     className="hover:scale-110"
                     onClick={(e) => {
                       e.stopPropagation();
-                      addToWishlist(product.productId).then(() =>
-                        toast.success("Product added to wishlist")
-                      );
+                      addToWishlist(product.productId).then((res) => {
+                        if (!res.error) {
+                          toast.success("Product added to wishlist");
+                          console.log(res);
+                        }
+                      });
                     }}
                   />
                 </Tooltip>
@@ -139,12 +141,11 @@ function ProductCard({ product }) {
                     onClick={(e) => {
                       e.stopPropagation();
                       confirm({
-                        description: `Delete "${product.name}"? This action cannot be undone.`
+                        description: `Delete "${product.name}"? This action cannot be undone.`,
                       }).then(() => {
                         localStorage.removeItem("userData");
                         deleteProduct(product.productId);
                       });
-                      
                     }}>
                     <Delete className="hover:scale-110" />
                   </IconButton>
