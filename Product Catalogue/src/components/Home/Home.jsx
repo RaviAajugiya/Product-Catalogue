@@ -3,29 +3,20 @@ import { useSearchParams } from "react-router-dom";
 import ProductCard from "../common/ProductCard";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
-import {
-  useGetProductByIdQuery,
-  useGetProductQuery,
-} from "../../redux/api/productApi";
+import { useGetProductQuery } from "../../redux/api/productApi";
 import {
   Box,
   TextField,
-  Select,
-  MenuItem,
-  Chip,
   Slider,
   Typography,
-  Menu,
   IconButton,
   FormControl,
-  InputLabel,
   Autocomplete,
   Divider,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import theme from "../common/theme";
 import { useGetTagsQuery } from "../../redux/api/tagsApi";
-import { toast } from "react-toastify";
 
 function Home() {
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -67,7 +58,7 @@ function Home() {
       }
 
       const minPrice = parseInt(params.get("minPrice")) || 0;
-      const maxPrice = parseInt(params.get("maxPrice")) || 4000;
+      const maxPrice = parseInt(params.get("maxPrice")) || 1000;
       setPriceRange([minPrice, maxPrice]);
       setInitialSyncDone(true);
     }
@@ -192,7 +183,7 @@ function Home() {
         </Box>
       </Box>
 
-      <Grid container spacing={2} className="mt-5">
+      <Grid container spacing={2} className="mt-1">
         {filteredProducts?.length === 0 ? (
           <Typography
             className="text-center w-fit m-auto"

@@ -11,6 +11,7 @@ import {
 } from "../../redux/api/wishlistApi";
 import { useEffect } from "react";
 import { FavoriteBorder } from "@mui/icons-material";
+import { toast } from "react-toastify";
 
 function ImageZoom({ smallImage, largeImage }) {
   return (
@@ -80,7 +81,6 @@ function ProductModel({ onClose, product }) {
           className="absolute text-3xl cursor-pointer right-4 top-4"
           onClick={handleClose}
         />
-
         <Box className="flex flex-col lg:flex-row gap-6">
           <Box className="flex flex-col flex-1">
             <Box>
@@ -104,7 +104,7 @@ function ProductModel({ onClose, product }) {
             </Box>
           </Box>
 
-          <Box className="flex flex-col flex-1 gap-6">
+          <Box className="flex flex-col flex-1 gap-5">
             <Typography variant="h5" className="font-semibold">
               {product.name}
             </Typography>
@@ -121,7 +121,9 @@ function ProductModel({ onClose, product }) {
                 sx={{ textTransform: "none" }}
                 onClick={() => {
                   setIsProductWishlist(false);
-                  deleteWishlist(product.productId);
+                  deleteWishlist(product.productId).then(() =>
+                    toast.success("Product removed from wishlist")
+                  );
                 }}
                 variant="outlined"
                 startIcon={<FavoriteIcon />}
@@ -132,7 +134,9 @@ function ProductModel({ onClose, product }) {
               <Button
                 sx={{ textTransform: "none" }}
                 onClick={() => {
-                  addToWishlist(product.productId);
+                  addToWishlist(product.productId).then(() => {
+                    toast.success("Product added to wishlist");
+                  });
                 }}
                 variant="outlined"
                 startIcon={<FavoriteBorder />}

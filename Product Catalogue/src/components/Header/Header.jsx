@@ -135,7 +135,7 @@ function Header() {
                       navigate(URL.HOME);
                     });
                   }}>
-                  logout
+                  Logout
                 </Button>
               ) : (
                 <Button

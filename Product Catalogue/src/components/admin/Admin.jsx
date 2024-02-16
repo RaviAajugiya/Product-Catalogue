@@ -2,33 +2,26 @@ import React, { useState } from "react";
 import { Box, Container, Divider, Typography, Button } from "@mui/material";
 import Tags from "./Tags";
 import Products from "./Procucts";
-import { jwtDecode } from "jwt-decode"; // Import jwtDecode function
-import { useEffect } from "react";
+import { jwtDecode } from "jwt-decode"; 
 import { URL } from "../config/URLHelper";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 function Admin() {
-  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
-  const localData = localStorage.getItem("userData");
-  console.log(localData);
-
-  useEffect(() => {
-    if (localData) {
-      const token = JSON.parse(localData).token;
-      const decodedToken = jwtDecode(token);
-
-      setIsAdmin(
-        decodedToken[
-          "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-        ] === "Admin"
-      );
-    }
-  }, [localData]);
+  const token = useSelector((state) => state.auth.userData?.token);
+  let isAdmin;
+  if (token) {
+    const decodedToken = jwtDecode(token);
+    isAdmin =
+      decodedToken[
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+      ] === "Admin";
+  }
 
   return isAdmin ? (
-    <Container className="flex mt-5 gap-10 flex-wrap justify-between">
+    <Container className="flex my-5 gap-10 flex-wrap justify-between">
       <Products />
       <Divider orientation="vertical" flexItem className="hidden md:block" />
       <Tags />

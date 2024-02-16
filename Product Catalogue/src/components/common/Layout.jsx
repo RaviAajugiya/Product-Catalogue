@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 import Header from "../Header/Header";
 import { URL } from "../config/URLHelper";
-
+import Footer from "./footer/Footer";
 
 function Layout() {
   const location = useLocation();
@@ -12,8 +12,10 @@ function Layout() {
   return (
     <>
       {isAuth ? <Header /> : null}
-      <Outlet />
-      {/* {isAuth ? <Footer /> : null} */}
+      <main className="min-h-[calc(100vh-316px-34px)] max-h-full">
+        <Outlet />
+      </main>
+      {isAuth ? <Footer /> : null}
     </>
   );
 }
