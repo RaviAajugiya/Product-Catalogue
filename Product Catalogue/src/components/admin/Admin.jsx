@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, Container, Divider, Typography, Button } from "@mui/material";
 import Tags from "./Tags";
 import Products from "./Procucts";
-import { jwtDecode } from "jwt-decode"; 
+import { jwtDecode } from "jwt-decode";
 import { URL } from "../config/URLHelper";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -23,8 +23,10 @@ function Admin() {
   return isAdmin ? (
     <Container className="flex my-5 gap-10 flex-wrap justify-between">
       <Products />
-      <Divider orientation="vertical" flexItem className="hidden md:block" />
+      <Divider orientation="vertical" flexItem className="hidden lg:block" />
       <Tags />
+      <Divider orientation="vertical" flexItem className="hidden lg:block" />
+      
     </Container>
   ) : (
     <Box className="flex flex-col gap-2 justify-center items-center text-center m-auto h-full mt-10">

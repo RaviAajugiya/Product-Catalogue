@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useGetWishlistProductQuery } from "../../redux/api/wishlistApi";
 import {
   Container,
@@ -12,7 +12,6 @@ import ProductCard from "../common/ProductCard";
 import { URL } from "../config/URLHelper";
 import { useGetPdfMutation } from "../../redux/api/pdfApi";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import { toast } from "react-toastify";
 
 export default function Wishlist() {
@@ -34,7 +33,9 @@ export default function Wishlist() {
             variant="outlined"
             className="my-4 mb-4  w-fit m-auto"
             onClick={() => getPdf()}
-            sx={{ textTransform: "none" }}>
+            disabled={isLoading} // Disable button if loading
+            sx={{ textTransform: "none" }}
+          >
             Print PDF
             {isLoading ? (
               <CircularProgress className="ml-3" size={15} color="inherit" />
@@ -53,7 +54,8 @@ export default function Wishlist() {
               md={4}
               lg={3}
               xl={3}
-              key={product.productId}>
+              key={product.productId}
+            >
               <ProductCard product={product} />
             </Grid>
           ))
@@ -66,7 +68,8 @@ export default function Wishlist() {
               variant="contained"
               sx={{ textTransform: "none" }}
               color="primary"
-              onClick={() => navigate(URL.HOME)}>
+              onClick={() => navigate(URL.HOME)}
+            >
               Add here
             </Button>
           </Box>

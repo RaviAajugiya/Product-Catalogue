@@ -12,6 +12,7 @@ import {
 import { useEffect } from "react";
 import { FavoriteBorder } from "@mui/icons-material";
 import { toast } from "react-toastify";
+import ReactHtmlParser from "react-html-parser";
 
 function ImageZoom({ smallImage, largeImage }) {
   return (
@@ -109,7 +110,7 @@ function ProductModel({ onClose, product }) {
               {product.name}
             </Typography>
             <Typography className="text-2xl">${product.price}</Typography>
-            <Typography>{product.description}</Typography>
+            <Typography>{ReactHtmlParser(product.description)}</Typography>
             <Box className="flex flex-wrap gap-2">
               {product.tags.map((tag) => (
                 <Chip key={tag.tagId} label={tag.name} variant="filled" />

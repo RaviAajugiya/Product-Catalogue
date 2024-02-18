@@ -94,7 +94,7 @@ function ProductCard({ product }) {
           <Box className="flex gap-3 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <IconButton className="bg-white">
               {isProductWishlist ? (
-                <Tooltip title="Remove from wishlist">
+                <Tooltip title="Remove from Wishlist">
                   <FavoriteIcon
                     className="hover:scale-110"
                     onClick={(e) => {
@@ -107,7 +107,7 @@ function ProductCard({ product }) {
                   />
                 </Tooltip>
               ) : (
-                <Tooltip title="Add to wishlist">
+                <Tooltip title="Add to Wishlist">
                   <FavoriteBorder
                     className="hover:scale-110"
                     onClick={(e) => {
@@ -125,7 +125,7 @@ function ProductCard({ product }) {
             </IconButton>
             {isAdmin && (
               <>
-                <Tooltip title="Edit product">
+                <Tooltip title="Edit Product">
                   <IconButton
                     className="bg-white"
                     onClick={(e) => {
@@ -135,7 +135,7 @@ function ProductCard({ product }) {
                     <Edit className="hover:scale-110" />
                   </IconButton>
                 </Tooltip>
-                <Tooltip title="Delete product">
+                <Tooltip title="Delete Product">
                   <IconButton
                     className="bg-white"
                     onClick={(e) => {

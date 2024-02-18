@@ -16,7 +16,7 @@ import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import appLogo from "./../../assets/Krist.svg";
+import appLogo from "./../../assets/logo/logo.png";
 import { Link } from "react-router-dom";
 import { URL } from "../config/URLHelper";
 import { useState } from "react";

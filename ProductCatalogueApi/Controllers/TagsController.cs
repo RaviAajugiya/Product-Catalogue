@@ -55,6 +55,8 @@ namespace ProductCatalogue.Controllers
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] TagAddDTO tags)
         {
+            var newTags = new List<Tag>();
+
             foreach (var tagName in tags.Name)
             {
                 var tagExists = await context.Tag.AnyAsync(tag => tag.Name == tagName);
@@ -66,12 +68,14 @@ namespace ProductCatalogue.Controllers
 
                 var tag = new Tag { Name = tagName };
                 context.Add(tag);
+                newTags.Add(tag); // Add the newly created tag to the list
             }
 
             await context.SaveChangesAsync();
 
-            return Ok(new Response { Status = "Success", Message = "Tags added successfully" });
+            return Ok(new { Status = "Success", Message = "Tags added successfully", NewTags = newTags });
         }
+
 
         [Authorize(Roles = "Admin")]
 

@@ -33,10 +33,30 @@ import { toast } from "react-toastify";
 import { useConfirm } from "material-ui-confirm";
 import { URL } from "../config/URLHelper";
 import { useNavigate } from "react-router-dom";
+import { TextareaAutosize } from "@mui/material";
+import RichTextEditor from "react-rte";
 
 function Products() {
   const confirm = useConfirm();
   const navigate = useNavigate();
+
+  const [description, setDescription] = useState(
+    RichTextEditor.createEmptyValue()
+  );
+
+  const onChange = (newValue) => {
+    setDescription(newValue);
+    console.log(newValue.toString("html"));
+  };
+
+  const toolbarConfig = {
+    display: ["INLINE_STYLE_BUTTONS"],
+    INLINE_STYLE_BUTTONS: [
+      { label: "Bold", style: "BOLD", className: "custom-css-class" },
+      { label: "Italic", style: "ITALIC" },
+      { label: "Underline", style: "UNDERLINE" },
+    ],
+  };
 
   const [addProduct] = useAddProductMutation();
   const [editProduct] = useEditProductMutation();
@@ -60,15 +80,21 @@ function Products() {
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
-    description: Yup.string().required("Description is required"),
-    price: Yup.number().required("Price is required"),
+    // description: Yup.string().required("Description is required"),
+    price: Yup.number()
+      .required("Price is required")
+      .min(0, "Price must be greater than zero"),
   });
 
   useEffect(() => {
     if (product) {
+      setDescription(
+        RichTextEditor.createValueFromString(product?.description, "html")
+      );
+
       setInitialValues({
         name: product?.name || "",
-        description: product?.description || "",
+        // description: product?.description || "",
         price: product?.price || "",
         selectedTags: product?.tags || [],
       });
@@ -158,9 +184,10 @@ function Products() {
 
   const handleSubmit = async (values, { resetForm }) => {
     console.log(values);
+    console.log(description.toString("html"));
     const formData = new FormData();
     formData.append("name", values.name);
-    formData.append("description", values.description);
+    formData.append("description", description.toString("html"));
     formData.append("price", values.price);
     formData.append("mainImage", mainImageValue);
 
@@ -220,24 +247,10 @@ function Products() {
               }
               helperText={formikProps.touched.name && formikProps.errors.name}
             />
-            <TextField
-              fullWidth
-              margin="normal"
-              id="description"
-              name="description"
-              label="Description"
-              variant="outlined"
-              value={formikProps.values?.description}
-              onChange={formikProps.handleChange}
-              onBlur={formikProps.handleBlur}
-              error={
-                formikProps.touched.description &&
-                Boolean(formikProps.errors.description)
-              }
-              helperText={
-                formikProps.touched.description &&
-                formikProps.errors.description
-              }
+            <RichTextEditor
+              value={description}
+              onChange={onChange}
+              toolbarConfig={toolbarConfig}
             />
             <TextField
               fullWidth
@@ -255,46 +268,49 @@ function Products() {
               helperText={formikProps.touched.price && formikProps.errors.price}
             />
 
-            <FormControl fullWidth margin="normal">
-              <Autocomplete
-                multiple
-                id="selected-tags"
-                options={tags || []}
-                getOptionLabel={(tag) => tag.name}
-                value={formikProps.values?.selectedTags || []}
-                onChange={(event, newValue) => {
-                  formikProps.setFieldValue("selectedTags", newValue);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    label="Tags"
-                    error={
-                      formikProps.touched.selectedTags &&
-                      Boolean(formikProps.errors.selectedTags)
-                    }
-                    helperText={
-                      formikProps.touched.selectedTags &&
-                      formikProps.errors.selectedTags
-                    }
-                    inputProps={{
-                      ...params.inputProps,
-                      onKeyDown: (event) => {
-                        if (event.key === "Enter") {
-                          event.preventDefault();
-                          const newInputValue = event.target.value.trim();
-                          if (newInputValue) {
-                            addTags({ name: [newInputValue] });
+            <Autocomplete
+              multiple
+              id="selected-tags"
+              options={tags || []}
+              getOptionLabel={(tag) => tag.name}
+              value={formikProps.values?.selectedTags || []}
+              onChange={(event, newValue) => {
+                formikProps.setFieldValue("selectedTags", newValue);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="outlined"
+                  label="Tags"
+                  error={
+                    formikProps.touched.selectedTags &&
+                    Boolean(formikProps.errors.selectedTags)
+                  }
+                  helperText={
+                    formikProps.touched.selectedTags &&
+                    formikProps.errors.selectedTags
+                  }
+                  inputProps={{
+                    ...params.inputProps,
+                    onKeyDown: (event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        const newInputValue = event.target.value.trim();
+                        if (newInputValue) {
+                          console.log(newInputValue, "newval");
+                          addTags({ name: [newInputValue] }).then((res) => {
+                            formikProps.values.selectedTags.push(
+                              res.data.newTags[0]
+                            );
                             event.target.value = "";
-                          }
+                          });
                         }
-                      },
-                    }}
-                  />
-                )}
-              />
-            </FormControl>
+                      }
+                    },
+                  }}
+                />
+              )}
+            />
 
             <Box className="flex gap-2 w-full mt-3">
               <Box

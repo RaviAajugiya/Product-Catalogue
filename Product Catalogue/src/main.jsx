@@ -19,6 +19,7 @@ import Admin from "./components/admin/Admin.jsx";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ConfirmProvider } from "material-ui-confirm";
+import RteDemo from "./components/Home/RteDemo.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
